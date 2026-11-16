@@ -661,6 +661,7 @@ struct OutputUi {
 }
 
 pub struct App {
+    tv_child: Option<std::process::Child>,
     compositor: Compositor,
     gfx: Gfx,
     ui: Ui,
@@ -970,6 +971,7 @@ impl App {
         });
         let output_watch = OutputWatch::start().inspect_err(|e| log(&format!("audio output watch: {e:?}"))).ok();
         let mut app = App {
+            tv_child: None,
             compositor: compositor.clone(),
             gfx,
             ui,
@@ -1210,6 +1212,7 @@ impl App {
         }
         self.fullscreen = fullscreen;
         if fullscreen {
+            self.stop_tv();
             self.hide_card_now()?;
             self.ui.pill_window.set_visible(false);
             self.note_pill(false, &format!("fullscreen: {}", foreground_exe().unwrap_or_default()));
@@ -1434,6 +1437,12 @@ impl App {
         // things on, the weather waits at the back of the stack.
         let weather = self.weather.is_some() && crate::activities::weather_worker::place().is_some();
         add_idle(&mut p, now, s.idle_clock, weather && s.weather_in_stack);
+        if settings::top_island() {
+            if !p.iter().any(|p| matches!(p.kind, ActivityKind::Clock | ActivityKind::Weather)) {
+                p.push(Presence { kind: ActivityKind::Clock, state: PresenceState::Running, changed_ms: 0 });
+            }
+            p.push(Presence { kind: ActivityKind::Television, state: PresenceState::Running, changed_ms: 0 });
+        }
         p
     }
 
@@ -1795,6 +1804,19 @@ impl App {
                 .find(|(h, _)| h.id == id)
                 .map(|(h, _)| PillContent::Headset { name: h.name.clone(), pct: h.pct }),
             ActivityKind::Shelf => (!self.shelf.is_empty()).then(|| self.shelf_pill(false)),
+            ActivityKind::Television => Some(PillContent::App {
+                key: 0, title: "TV / TNT".into(), text: "IPTV".into(), status: String::new(),
+                icon: Some(AppIcon::Glyph(crate::render::icons::glyph(crate::render::icons::Icon::Monitor))),
+                accent: (120, 170, 255), ring: false,
+            }),
+            ActivityKind::Weather if settings::top_island() => {
+                let (time, date) = clock_text(unix_now() + tz_offset_s());
+                let current = self.weather.as_ref().filter(|w| crate::activities::weather::shows_now(w.fetched_utc, unix_now()));
+                Some(PillContent::Clock { time, date,
+                    weather: current.map(|w| (symbol(w.code, w.is_day).to_string(), format!("{}°", w.temp.round() as i32))),
+                    fx: current.map(|w| fx_of(w.code, w.is_day)),
+                })
+            }
             ActivityKind::Clock => {
                 let (time, date) = clock_text(unix_now() + tz_offset_s());
                 // Hours offline: no stale sky in the clock pill.
@@ -1860,7 +1882,8 @@ impl App {
             OpenCard::Activity(ActivityKind::Match(key)) => self.match_of(key).map(|m| CardContent::Match(Box::new(self.match_card(m, now)))),
             // A moment has no card.
             OpenCard::Activity(
-                ActivityKind::Volume
+                ActivityKind::Television
+                | ActivityKind::Volume
                 | ActivityKind::Power
                 | ActivityKind::Privacy
                 | ActivityKind::Headset(_)
@@ -2646,7 +2669,7 @@ impl App {
             }
         }
         // The idle clock turns over at the next minute.
-        if self.front_kind() == Some(ActivityKind::Clock) {
+        if matches!(self.front_kind(), Some(ActivityKind::Clock | ActivityKind::Weather)) {
             let into = (unix_now() + tz_offset_s()).rem_euclid(60) as u64;
             sooner((60 - into) * 1000 + 20);
         }
@@ -3828,8 +3851,10 @@ impl App {
     /// One swipe (wheel, tilt wheel or touchpad) through the stack: the next (`step` > 0) or
     /// previous activity comes to the front, and an open activity card follows it.
     fn step_front(&mut self, step: i32) -> Result<()> {
+        let tv_open = self.tv_child.as_mut().is_some_and(|c| c.try_wait().ok().flatten().is_none());
         let (from, card_open) = match (self.open, self.card_state) {
             (Some(OpenCard::Activity(kind)), CardState::Open | CardState::Opening) => (Some(kind), true),
+            (Some(OpenCard::Brief), CardState::Open | CardState::Opening) => (self.front_kind(), true),
             _ => (self.front_kind(), false),
         };
         let now = now_ms();
@@ -3839,9 +3864,18 @@ impl App {
         if Some(next) == from {
             return Ok(());
         }
+        self.stop_tv();
         self.user_front = Some((next, now_ms()));
+        if next == ActivityKind::Television && card_open {
+            self.hide_card_now()?;
+            self.refresh()?;
+            return self.toggle_tv();
+        }
         self.refresh()?;
-        if let (Some(OpenCard::Activity(_)), CardState::Open | CardState::Opening) = (self.open, self.card_state) {
+        if tv_open {
+            return self.open_card(OpenCard::Activity(next), true);
+        }
+        if card_open {
             self.switch_card(next, step)?;
         }
         Ok(())
@@ -3964,7 +3998,40 @@ impl App {
     }
 
     /// `by_pointer`: opened with the mouse, so it also closes when the mouse goes elsewhere.
+    fn stop_tv(&mut self) {
+        if let Some(mut child) = self.tv_child.take() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+
+    fn toggle_tv(&mut self) -> Result<()> {
+        if self.tv_child.as_mut().is_some_and(|c| c.try_wait().ok().flatten().is_none()) {
+            self.stop_tv();
+            return Ok(());
+        }
+        self.stop_tv();
+        self.hide_card_now()?;
+        let pill = self.pill_screen();
+        if let Ok(exe) = std::env::current_exe() {
+            let host = exe.with_file_name("pebbly-tv.exe");
+            match std::process::Command::new(host)
+                .args([std::process::id().to_string(), (pill.x + pill.w / 2).to_string(), pill.bottom().to_string(),
+                    (self.ui.pill_window.input.0 as isize).to_string()]).spawn() {
+                Ok(child) => self.tv_child = Some(child),
+                Err(e) => {
+                    log(&format!("TV host failed: {e}"));
+                    unsafe { windows::Win32::UI::WindowsAndMessaging::MessageBoxW(None,
+                        windows::core::w!("Keep pebbly-tv.exe and the tv folder beside pebbly.exe. Extract the complete ZIP first."),
+                        windows::core::w!("Pebbly TV"), windows::Win32::UI::WindowsAndMessaging::MB_OK); }
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn open_card(&mut self, which: OpenCard, by_pointer: bool) -> Result<()> {
+        if which == OpenCard::Activity(ActivityKind::Television) { return self.toggle_tv(); }
         if matches!(self.card_state, CardState::Open | CardState::Opening) {
             return Ok(());
         }
@@ -4343,7 +4410,8 @@ impl App {
                 self.refresh()
             }
             UiEvent::Timer(TIMER_MEDIA_EXPIRY) | UiEvent::Timer(TIMER_MATCH) | UiEvent::Timer(TIMER_LIVE_EXPIRY) => self.refresh(),
-            UiEvent::Pill(PillEvent::Wheel(_)) if !settings::current().wheel_switches_activity => Ok(()),
+            UiEvent::Pill(PillEvent::Wheel(_)) if !settings::top_island() && !settings::current().wheel_switches_activity => Ok(()),
+            UiEvent::Pill(PillEvent::Wheel(delta)) if settings::top_island() && delta.abs() >= 120 => self.step_front(delta.signum()),
             UiEvent::Pill(PillEvent::Wheel(delta)) => match self.swipe.push(delta, now_ms()) {
                 Some(step) => self.step_front(step),
                 None => Ok(()),
@@ -4560,11 +4628,11 @@ impl App {
                     }
                     return self.refresh();
                 }
-                if !settings::current().wheel_switches_activity {
+                if !settings::top_island() && !settings::current().wheel_switches_activity {
                     return Ok(());
                 }
                 match (self.open, self.swipe.push(delta, now_ms())) {
-                    (Some(OpenCard::Activity(_)), Some(step)) => self.step_front(step),
+                    (Some(OpenCard::Activity(_) | OpenCard::Brief), Some(step)) => self.step_front(step),
                     _ => Ok(()),
                 }
             }
@@ -4604,6 +4672,7 @@ impl App {
 
 impl Drop for App {
     fn drop(&mut self) {
+        self.stop_tv();
         remove_tray(self.main.hwnd);
         self.save_music();
     }

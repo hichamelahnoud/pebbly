@@ -64,6 +64,8 @@ pub enum ActivityKind {
     Shelf,
     /// Nothing else on: the clock and the weather.
     Clock,
+    /// Persistent television launcher in top-island mode.
+    Television,
     /// The picked city's weather, at the back of the stack while other things are on.
     Weather,
     /// Rain or snow is about to start: for a moment.
@@ -125,6 +127,7 @@ pub fn settings_page_for(kind: ActivityKind) -> u8 {
         | ActivityKind::Privacy
         | ActivityKind::Headset(_)
         | ActivityKind::Shelf
+        | ActivityKind::Television
         | ActivityKind::Clock
         | ActivityKind::Weather
         | ActivityKind::Rain
@@ -211,6 +214,7 @@ fn rank(p: &Presence, now_ms: u64, keep_ms: u64, buds_front: u64) -> Option<u8> 
         // Only present while it has items, so never `None`.
         (ActivityKind::Shelf, _) => Some(8),
         (ActivityKind::Clock, _) => Some(10),
+        (ActivityKind::Television, _) => Some(11),
         // Always on with a city: the last thing behind everything else.
         (ActivityKind::Weather, _) => Some(10),
         (ActivityKind::Rain, _) if age < RAIN_MOMENT_MS => Some(1),
@@ -622,3 +626,4 @@ mod tests {
         assert!(stack_order(&[], 0, Some((Media(1), 0))).is_empty());
     }
 }
+

@@ -41,7 +41,7 @@ pub fn timer_accent() -> (u8, u8, u8) {
     s.accent_from_wallpaper.then(crate::platform::wallpaper::accent).flatten().unwrap_or_else(|| s.accent())
 }
 pub const BUDS_ACCENT: (u8, u8, u8) = (0x35, 0x79, 0xFF);
-pub const PILL_H_DIP: f32 = 32.0;
+pub const PILL_H_DIP: f32 = 40.0;
 /// Each activity behind the front one peeks out this much further to the right.
 pub const SLIVER_STEP_DIP: f32 = 6.0;
 /// The widest pill (media), and how many activities behind it get a sliver.
@@ -292,6 +292,7 @@ fn color(a: u8, (r, g, b): (u8, u8, u8)) -> Color {
 impl PillContent {
     /// The weather's sky behind this pill, if it has one.
     pub fn fx(&self) -> Option<WeatherFx> {
+        if crate::settings::top_island() { return None; }
         match self {
             PillContent::Weather { fx, .. } => Some(*fx),
             PillContent::Clock { fx, .. } => *fx,
@@ -363,6 +364,7 @@ impl PillContent {
 
     /// Body colours, top and bottom: flat #121212 for timers, the album tint for media.
     pub fn base(&self) -> (Color, Color) {
+        if crate::settings::top_island() { return (color(255, (4,4,5)), color(255, (4,4,5))); }
         if let Some(fx) = self.fx() {
             let ([r0, g0, b0], [r1, g1, b1]) = palette(fx);
             return (color(245, (r0, g0, b0)), color(250, (r1, g1, b1)));
@@ -386,6 +388,7 @@ impl PillContent {
 
     /// Timers carry a left accent gradient; the media pill doesn't (its tint is the album's).
     pub fn has_accent_gradient(&self) -> bool {
+        if crate::settings::top_island() { return false; }
         !matches!(self, PillContent::Media(_) | PillContent::Match(_) | PillContent::Clock { .. } | PillContent::Weather { .. })
     }
 
@@ -1183,6 +1186,24 @@ pub fn paint_pill_content(ink: &Ink, c: &PillContent, w: f32, h: f32, s: &Scale)
 /// city), "20:42" and " · Çar 21 Eki · 18°".
 #[allow(clippy::too_many_arguments)]
 fn paint_clock(ink: &Ink, time: &str, date: &str, weather: Option<&(String, String)>, fx: Option<WeatherFx>, w: f32, h: f32, s: &Scale) -> Result<()> {
+    if crate::settings::top_island() {
+        let d = |v: f32| v * s.0;
+        let clock = TextStyle::new(Face::Text, Weight::SemiBold, d(15.0), white(1.0)).tabular();
+        let cw = ink.measure(time, &clock)?;
+        let right = w - d(17.0) - cw;
+        ink.text(time, rect(right, 0.0, cw + d(2.0), h), &clock)?;
+        ink.rrect(rect(right-d(16.0), d(13.0), d(1.0), h-d(26.0)), d(0.5), white(0.18))?;
+        if let Some((symbol, temp)) = weather {
+            ink.text(symbol, rect(d(15.0), 0.0, d(28.0), h),
+                &TextStyle::new(Face::Text, Weight::Regular, d(19.0), white(1.0)).centered().emoji())?;
+            ink.text(temp, rect(d(49.0), 0.0, (right-d(76.0)).max(0.0), h),
+                &TextStyle::new(Face::Text, Weight::SemiBold, d(15.0), white(1.0)).tabular())?;
+        } else {
+            ink.text(date, rect(d(17.0), 0.0, (right-d(45.0)).max(0.0), h),
+                &TextStyle::new(Face::Text, Weight::Regular, d(12.0), white(0.7)).ellipsis())?;
+        }
+        return Ok(());
+    }
     let label = match weather {
         Some((_, temp)) => format!("{date} · {temp}"),
         None => date.to_string(),
