@@ -612,17 +612,20 @@ impl PillWindow {
     /// `frame_w` the pill frame's width, in screen pixels. The window never moves: the pill
     /// glides inside it, which a moving child window can't do smoothly.
     pub fn create(g: &Gfx, bar: HWND, lane: RectPx, frame_w: i32) -> Result<Self> {
-        let ex = WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
+        let floating = crate::settings::top_island();
+        let ex = WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW
+            | if floating { WS_EX_TOPMOST } else { WINDOW_EX_STYLE(0) };
         let hwnd = create(PASSIVE_CLASS, ex, lane)?;
         unsafe { SetLayeredWindowAttributes(hwnd, COLORREF(0), 255, LWA_ALPHA)? };
-        taskbar::embed(hwnd, bar, lane)?;
+        if !floating { taskbar::embed(hwnd, bar, lane)?; }
         let (target, root) = composition_target(g, hwnd, lane)?;
         let stage = g.compositor.CreateContainerVisual()?;
         stage.SetSize(windows_numerics::Vector2 { X: frame_w as f32, Y: lane.h as f32 })?;
         root.Children()?.InsertAtTop(&stage)?;
 
-        let input = create(PILL_INPUT_CLASS, WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW, lane)?;
-        taskbar::embed(input, bar, lane)?;
+        let input = create(PILL_INPUT_CLASS, WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW
+            | if floating { WS_EX_TOPMOST } else { WINDOW_EX_STYLE(0) }, lane)?;
+        if !floating { taskbar::embed(input, bar, lane)?; }
         // Alpha 1: invisible but still hit-testable. Set after embedding; set before, a layered
         // child keeps an opaque (black) surface.
         unsafe { SetLayeredWindowAttributes(input, COLORREF(0), 1, LWA_ALPHA)? };
@@ -651,9 +654,16 @@ impl PillWindow {
         if self.placed.get() == Some((pill, radius_px)) {
             return Ok(());
         }
-        taskbar::place(self.input, self.bar, pill)?;
+        if crate::settings::top_island() {
+            unsafe {
+                SetWindowPos(self.input, Some(HWND_TOPMOST), pill.x, pill.y, pill.w, pill.h, SWP_NOACTIVATE)?;
+                SetWindowPos(self.hwnd, Some(HWND_TOPMOST), self.lane.x, self.lane.y, self.lane.w, self.lane.h, SWP_NOACTIVATE)?;
+            }
+        } else {
+            taskbar::place(self.input, self.bar, pill)?;
+            taskbar::place(self.hwnd, self.bar, self.lane)?;
+        }
         set_hit_region(self.input, pill.w, pill.h, radius_px);
-        taskbar::place(self.hwnd, self.bar, self.lane)?;
         self.placed.set(Some((pill, radius_px)));
         Ok(())
     }

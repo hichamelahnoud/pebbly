@@ -117,7 +117,8 @@ pub fn card_rect(bar: &TaskbarInfo, center_x: i32, w_dip: f32, h_dip: f32, gap_d
     // centred with Widgets off, or a large offset).
     let margin = s.px(8.0) as i32;
     let x = (center_x - w / 2).min(bar.rect.x + bar.rect.w - margin - w).max(bar.rect.x + margin);
-    RectPx { x, y: bottom - h, w, h }
+    let y = if bar.bottom { bottom - h } else { bar.rect.y };
+    RectPx { x, y, w, h }
 }
 
 /// The card window's left edge for a `w` px wide window centred on `center_x`, kept on the
@@ -136,6 +137,25 @@ pub fn lerp_rect(a: RectPx, b: RectPx, t: f32) -> RectPx {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn top_cards_grow_down_on_offset_monitors_and_scaled_displays() {
+        for dpi in [96, 120, 144, 192] {
+            let s = Scale::from_dpi(dpi);
+            let lane = TaskbarInfo {
+                rect: RectPx { x: -1920, y: -200 + s.px(8.0) as i32, w: 1920, h: s.px(48.0) as i32 },
+                align: TaskbarAlign::Left, widgets: false, bottom: false,
+            };
+            let pill = pill_rect(&lane, 176.0, 32.0, &s, 0.0);
+            assert_eq!(pill.x + pill.w / 2, -960);
+            let small = card_rect(&lane, -960, 340.0, 200.0, 12.0, &s);
+            let large = card_rect(&lane, -960, 340.0, 500.0, 12.0, &s);
+            assert_eq!(small.y, lane.rect.y);
+            assert_eq!(large.y, small.y);
+            assert!(large.bottom() > small.bottom());
+            assert!(large.x >= lane.rect.x && large.right() <= lane.rect.right());
+        }
+    }
 
     fn bar(align: TaskbarAlign, widgets: bool) -> TaskbarInfo {
         TaskbarInfo { rect: RectPx { x: 0, y: 1030, w: 1920, h: 50 }, align, widgets, bottom: true }

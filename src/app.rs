@@ -582,11 +582,27 @@ struct Ui {
     island: Option<Island>,
 }
 
+/// A virtual top lane on the taskbar's monitor; no Explorer parenting.
+fn placement_info(bar: HWND) -> Result<TaskbarInfo> {
+    let mut info = taskbar::taskbar_info(bar)?;
+    if settings::top_island() {
+        if let Some(monitor) = monitor_of(bar) {
+            let scale = Scale::from_dpi(unsafe { GetDpiForWindow(bar) });
+            info.rect = RectPx { x: monitor.x, y: monitor.y + scale.px(8.0) as i32,
+                w: monitor.w, h: scale.px(48.0) as i32 };
+            info.align = crate::render::layout::TaskbarAlign::Left;
+            info.widgets = false;
+            info.bottom = false;
+        }
+    }
+    Ok(info)
+}
+
 impl Ui {
     fn build(gfx: &Gfx) -> Result<Ui> {
         let bar = taskbar::find_taskbar()
             .ok_or_else(|| windows::core::Error::new(windows::Win32::Foundation::E_FAIL, "taskbar not found"))?;
-        let info = taskbar::taskbar_info(bar)?;
+        let info = placement_info(bar)?;
         let scale = Scale::from_dpi(unsafe { GetDpiForWindow(bar) });
         let s = settings::current();
         // A low taskbar (Windows 10's, lower still with small buttons) takes a smaller pill.
@@ -628,7 +644,7 @@ impl Ui {
     /// Still the same taskbar, geometry, alignment and DPI as when built?
     fn still_valid(&self) -> bool {
         taskbar::find_taskbar() == Some(self.bar)
-            && taskbar::taskbar_info(self.bar).is_ok_and(|i| {
+            && placement_info(self.bar).is_ok_and(|i| {
                 i.rect == self.info.rect && i.align == self.info.align && i.widgets == self.info.widgets && i.bottom == self.info.bottom
             })
             && Scale::from_dpi(unsafe { GetDpiForWindow(self.bar) }) == self.scale
@@ -1244,7 +1260,7 @@ impl App {
         let circle = Self::pill_home(&self.ui.info, s, PILL_H_DIP);
         let circle = RectPx { w: circle.h, ..circle };
         let tail = if settings::current().pill_slivers { s.px(SLIVER_STEP_DIP * MAX_SLIVERS as f32) as i32 } else { 0 };
-        fit_pill(home, circle, tail, self.ui.scale.px(ITEM_GAP_DIP) as i32, &self.ui.info, &self.taskbar_items)
+        fit_pill(home, circle, tail, self.ui.scale.px(ITEM_GAP_DIP) as i32, &self.ui.info, if settings::top_island() { &[] } else { &self.taskbar_items })
     }
 
     /// Takes the latest taskbar items unless a card is out (it grows from and shrinks into the
@@ -1275,8 +1291,10 @@ impl App {
         let cx = pill.x + pill.w / 2;
         let w = s.even_px(CARD_FRAME_W_DIP + 2.0 * SHADOW_BLUR_DIP) as i32;
         let tallest = card_rect(info, cx, CARD_FRAME_W_DIP, CARD_FRAME_H_DIP, CARD_GAP_DIP, s);
-        let top = tallest.y - s.px(SHADOW_BLUR_DIP) as i32;
-        RectPx { x: frame_x(info, cx, w), y: top, w, h: info.rect.bottom() - top }
+        let margin = s.px(SHADOW_BLUR_DIP + SHADOW_DY_DIP) as i32;
+        let top = (tallest.y - margin).min(pill.y - margin);
+        let bottom = tallest.bottom().max(pill.bottom()) + margin;
+        RectPx { x: frame_x(info, cx, w), y: top, w, h: bottom - top }
     }
 
     fn pill_screen(&self) -> RectPx {
@@ -2379,7 +2397,7 @@ impl App {
         self.stack = stack_order(&self.presences(now), now, self.user_front);
         let hint = dragdrop::hover() == Some(DropZone::Pill);
         let front = if hint { Some(self.shelf_pill(true)) } else { self.stack.first().and_then(|k| self.pill_content(*k, now)) };
-        let bottom = self.ui.info.bottom;
+        let bottom = self.ui.info.bottom || settings::top_island();
         match front.filter(|_| bottom) {
             None => {
                 self.front = None;

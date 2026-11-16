@@ -1,0 +1,43 @@
+name: Build Pebbly Top Island
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS: '-C target-feature=+crt-static'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Rust
+        run: rustup update stable --no-self-update
+      - name: Test layout
+        shell: pwsh
+        run: |
+          rustc --edition=2021 --test src/render/layout.rs -o layout-tests.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./layout-tests.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Windows executables
+        run: cargo +stable build --locked --profile quick --target x86_64-pc-windows-msvc --bin pebbly --bin pebbly-settings
+      - name: Package portable app
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force portable | Out-Null
+          Copy-Item target/x86_64-pc-windows-msvc/quick/pebbly.exe,target/x86_64-pc-windows-msvc/quick/pebbly-settings.exe portable/
+          Copy-Item LICENSE portable/
+          Copy-Item TOP-ISLAND.md portable/README.md
+          "@echo off`r`ncd /d `"%~dp0`"`r`nset PEBBLY_TOP_ISLAND=1`r`nstart `"`" pebbly.exe`r`n" | Set-Content portable/START-TOP.bat -Encoding ascii
+          "@echo off`r`ncd /d `"%~dp0`"`r`nset PEBBLY_TOP_ISLAND=0`r`nstart `"`" pebbly.exe`r`n" | Set-Content portable/START-TASKBAR.bat -Encoding ascii
+          Get-FileHash portable/*.exe -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 250 | Set-Content portable/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pebbly-Top-Island-Windows-x64
+          path: portable/
+          if-no-files-found: error
+          retention-days: 30

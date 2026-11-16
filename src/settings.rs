@@ -7,6 +7,13 @@ use std::sync::{Arc, RwLock};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+/// This custom build defaults to a top-centred floating island.
+/// Set PEBBLY_TOP_ISLAND=0 before launch to restore the original taskbar mode.
+pub fn top_island() -> bool {
+    static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ENABLED.get_or_init(|| std::env::var("PEBBLY_TOP_ISLAND").as_deref() != Ok("0"))
+}
+
 /// Registered window message the settings window posts after saving.
 pub const SETTINGS_CHANGED: &str = "Pebbly.SettingsChanged";
 
