@@ -606,9 +606,7 @@ impl Ui {
         let scale = Scale::from_dpi(unsafe { GetDpiForWindow(bar) });
         let s = settings::current();
         // A low taskbar (Windows 10's, lower still with small buttons) takes a smaller pill.
-        let pill_factor = pill_size_factor(s.pill_size)
-            * if settings::top_island() { 1.25 } else { 1.0 };
-        let pill_scale = Scale(scale.0 * pill_fit(info.rect.h, PILL_H_DIP, &scale, pill_factor));
+        let pill_scale = Scale(scale.0 * pill_fit(info.rect.h, PILL_H_DIP, &scale, pill_size_factor(s.pill_size)));
         let card_scale = Scale(scale.0 * if s.card_size == CardSize::Compact { 0.88 } else { 1.0 });
         let placeholder = PillContent::Timer { text: String::new(), label: "", paused: false };
         let pill_r = App::pill_home(&info, &pill_scale, placeholder.width_dip());
