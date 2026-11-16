@@ -48,9 +48,11 @@ jobs:
           Copy-Item target/x86_64-pc-windows-msvc/quick/pebbly.exe,target/x86_64-pc-windows-msvc/quick/pebbly-settings.exe portable/
           Copy-Item tv-out/* portable/ -Recurse -Force
           New-Item -ItemType Directory -Force portable/tv | Out-Null
-          Copy-Item tv/index.html,tv/tv.js,tv/tv-data.js portable/tv/
+          Copy-Item tv/index.html,tv/tv.js,tv/tv-data.js,tv/logo-pack.json portable/tv/
           Invoke-WebRequest https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js -OutFile portable/tv/hls.min.js
           Invoke-WebRequest https://cdn.jsdelivr.net/npm/hls.js@1.5.18/LICENSE -OutFile portable/tv/HLS-LICENSE.txt
+          node tv/download-logos.cjs tv/logo-pack.json portable/tv/logos
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Copy-Item LICENSE portable/
           Copy-Item TOP-ISLAND.md portable/README.md
           "@echo off`r`ncd /d `"%~dp0`"`r`nset PEBBLY_TOP_ISLAND=1`r`nstart `"`" pebbly.exe`r`n" | Set-Content portable/START-TOP.bat -Encoding ascii
@@ -58,7 +60,7 @@ jobs:
           Get-FileHash portable/*.exe -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 250 | Set-Content portable/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Pebbly-Top-Island-Live-v3-Windows-x64
+          name: Pebbly-Top-Island-Glass-Live-v4-Windows-x64
           path: portable/
           if-no-files-found: error
           retention-days: 30

@@ -58,8 +58,8 @@ internal sealed class TvWindow : Form
         parentPid = pid; pill = input;
         scale = Math.Max(1f, GetDpiForWindow(input) / 96f);
         var screen = Screen.FromPoint(new Point(center, top)).WorkingArea;
-        int width = Math.Min((int)(600 * scale), screen.Width - 20);
-        targetHeight = Math.Min((int)(600 * scale), screen.Height - 40);
+        int width = Math.Min((int)(720 * scale), screen.Width - 20);
+        targetHeight = Math.Min((int)(620 * scale), screen.Height - 40);
         int y = Math.Max(screen.Top, Math.Min(top, screen.Bottom - targetHeight - 8));
         int x = Math.Max(screen.Left + 8, Math.Min(center - width / 2, screen.Right - width - 8));
 
@@ -140,7 +140,7 @@ internal sealed class TvWindow : Form
                 (int)(32 * scale + (targetHeight - 32 * scale)*k));
             if (t >= 1) {
                 animation.Stop();
-                MinimumSize = new Size((int)(480 * scale), (int)(440 * scale));
+                MinimumSize = new Size((int)(560 * scale), (int)(470 * scale));
             }
         };
         life.Tick += (s,e) => {
@@ -173,7 +173,7 @@ internal sealed class TvWindow : Form
         var accent = new AccentPolicy {
             AccentState = 4,
             AccentFlags = 2,
-            GradientColor = unchecked((int)0xC818171D),
+            GradientColor = unchecked((int)0x9418171D),
             AnimationId = 0
         };
         int size = Marshal.SizeOf(accent);

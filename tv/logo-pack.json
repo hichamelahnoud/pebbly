@@ -1,0 +1,130 @@
+{
+  "tv": {
+    "aoula": [
+      "https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/al-aoula.png"
+    ],
+    "arryadia": [
+      "https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/arryadia.png"
+    ],
+    "2m": [
+      "https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/2m.png",
+      "https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/2mmonde.png"
+    ],
+    "medi1tv": [
+      "https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/medi1.png"
+    ]
+  },
+  "radio": {
+    "mohammed-6": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/assadissa.png"
+    ],
+    "medi1-radio-876": [
+      "https://static.mytuner.mobi/media/tvos_radios/605/medi-1-maghreb-myd1-mgrb.9d5209d7.png"
+    ],
+    "med-radio": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/med.png"
+    ],
+    "u-radio": [
+      "https://static.mytuner.mobi/media/tvos_radios/192/u-radio2.f7b44946.png"
+    ],
+    "snrt-chaine-inter": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/chaine.png"
+    ],
+    "radio-mars": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/mars.png"
+    ],
+    "atlantic-925": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/atlantic.png"
+    ],
+    "radio-2m": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/2m.png"
+    ],
+    "radio-plus": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/casablanca.png"
+    ],
+    "radio-amazighe": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/amazighia.png"
+    ],
+    "rim-radio": [
+      "https://static.mytuner.mobi/media/tvos_radios/pfzqx5wcbc7y.png"
+    ],
+    "mc-doualiya": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/monte-calro-doualiya.png"
+    ],
+    "radio-tanger-med": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/tanger-med.png"
+    ],
+    "medi1-radio-996": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-classique": [
+      "https://static.mytuner.mobi/media/tvos_radios/l8ttuzhsrj8z.png"
+    ],
+    "medi1-acoustic": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-nayda": [
+      "https://static.mytuner.mobi/media/tvos_radios/zytmxbuhearz.jpg"
+    ],
+    "medi1-tarab": [
+      "https://static.mytuner.mobi/media/tvos_radios/394/medi-1-tarab-myd1-trb.bfab2bd5.png"
+    ],
+    "medi1-andalouse": [
+      "https://static.mytuner.mobi/media/tvos_radios/nn9ycvnpn7uz.jpg"
+    ],
+    "medi1-soufi": [
+      "https://static.mytuner.mobi/media/tvos_radios/cy9ezwjyygfc.jpg"
+    ],
+    "medi1-francaise": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-dj": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-hits": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-jazz": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-latino": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "medi1-lounge": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medi.png"
+    ],
+    "hit-radio": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/hit.png"
+    ],
+    "chada-fm": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/chada.png"
+    ],
+    "radio-medina-fm": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/medina.png"
+    ],
+    "mfm-1029": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/mfm.png"
+    ],
+    "snrt-casablanca": [
+      "https://static.mytuner.mobi/media/tvos_radios/t5kvzrbmymam.png"
+    ],
+    "radio-aswat": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/aswat.png"
+    ],
+    "mfm-1049": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/mfm.png"
+    ],
+    "cap-radio": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/cap.png"
+    ],
+    "atlantic-1064": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/atlantic.png"
+    ],
+    "adwaa-fm": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/adwaa-fm.png"
+    ],
+    "yabiladi-chaabi": [
+      "https://cdn.instant.audio/images/logos/radio-co-ma/yabiladi.png"
+    ]
+  }
+}
