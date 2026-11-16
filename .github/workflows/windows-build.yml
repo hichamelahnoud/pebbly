@@ -19,7 +19,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
-      - name: Test IPTV imports
+      - name: Test TV, radio and IPTV data
         run: node --test tv/tv.test.cjs
       - name: Test TV controls in Edge
         shell: pwsh
@@ -58,7 +58,7 @@ jobs:
           Get-FileHash portable/*.exe -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 250 | Set-Content portable/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Pebbly-Top-Island-TV-v2-Windows-x64
+          name: Pebbly-Top-Island-Live-v3-Windows-x64
           path: portable/
           if-no-files-found: error
           retention-days: 30

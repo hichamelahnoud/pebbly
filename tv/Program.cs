@@ -28,51 +28,72 @@ internal sealed class TvWindow : Form
     [DllImport("user32.dll")] static extern uint GetDpiForWindow(IntPtr hwnd);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr hwnd, uint msg, IntPtr wp, IntPtr lp);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr hwnd);
+    [DllImport("user32.dll")] static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hwnd, int msg, IntPtr wp, IntPtr lp);
+    [DllImport("user32.dll")] static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct AccentPolicy { public int AccentState, AccentFlags, GradientColor, AnimationId; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct WindowCompositionAttributeData { public int Attribute; public IntPtr Data; public int SizeOfData; }
+
+    const int WM_NCHITTEST = 0x0084, WM_NCLBUTTONDOWN = 0x00A1, HTCAPTION = 2;
+    const int HTLEFT = 10, HTRIGHT = 11, HTTOP = 12, HTTOPLEFT = 13, HTTOPRIGHT = 14;
+    const int HTBOTTOM = 15, HTBOTTOMLEFT = 16, HTBOTTOMRIGHT = 17;
+
     readonly int parentPid;
     readonly IntPtr pill;
     readonly Timer life = new Timer { Interval = 300 };
     readonly Timer animation = new Timer { Interval = 15 };
     readonly WebView2 web = new WebView2();
     readonly Label status = new Label();
+    readonly Button sizeButton;
     readonly int targetHeight;
     readonly int targetWidth, targetX, startX, startWidth;
     readonly float scale;
     int frame;
 
-    public TvWindow(int pid, int center, int bottom, IntPtr input)
+    public TvWindow(int pid, int center, int top, IntPtr input)
     {
         parentPid = pid; pill = input;
         scale = Math.Max(1f, GetDpiForWindow(input) / 96f);
-        var screen = Screen.FromPoint(new Point(center, bottom)).WorkingArea;
-        int width = Math.Min((int)(560 * scale), screen.Width - 16);
-        targetHeight = Math.Min((int)(480 * scale), screen.Height - 64);
-        int y = Math.Max(screen.Top, Math.Min(bottom, screen.Bottom - targetHeight - 8));
+        var screen = Screen.FromPoint(new Point(center, top)).WorkingArea;
+        int width = Math.Min((int)(600 * scale), screen.Width - 20);
+        targetHeight = Math.Min((int)(600 * scale), screen.Height - 40);
+        int y = Math.Max(screen.Top, Math.Min(top, screen.Bottom - targetHeight - 8));
         int x = Math.Max(screen.Left + 8, Math.Min(center - width / 2, screen.Right - width - 8));
-        Text = "Pebbly TV"; FormBorderStyle = FormBorderStyle.None;
+
+        Text = "Pebbly Live"; FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false; TopMost = true; StartPosition = FormStartPosition.Manual;
-        AutoScaleMode = AutoScaleMode.None; BackColor = Color.FromArgb(5, 5, 7);
+        AutoScaleMode = AutoScaleMode.None; BackColor = Color.FromArgb(10, 11, 15);
+        Padding = new Padding(Math.Max(3, (int)(4 * scale)));
         targetWidth = width; targetX = x;
         startWidth = Math.Min(width, (int)(220 * scale));
         startX = Math.Max(screen.Left, Math.Min(center - startWidth / 2, screen.Right - startWidth));
         Bounds = new Rectangle(startX, y, startWidth, (int)(32 * scale));
-        var header = new Panel { Dock = DockStyle.Top, Height = (int)(42 * scale), BackColor = BackColor };
-        var title = new Label { Text = "TV / TNT", AutoSize = false, Dock = DockStyle.Left,
-            Width = (int)(132 * scale), TextAlign = ContentAlignment.MiddleCenter,
-            ForeColor = Color.White, Font = new Font("Segoe UI", 10, FontStyle.Bold) };
-        var hint = new Label { Text = "Scroll here to switch activities", Dock = DockStyle.Fill,
-            TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.FromArgb(120, 120, 130),
-            Font = new Font("Segoe UI", 8) };
-        var close = new Button { Text = "×", Dock = DockStyle.Right, Width = (int)(44 * scale),
-            FlatStyle = FlatStyle.Flat, ForeColor = Color.White, BackColor = BackColor, TabStop = false };
-        close.FlatAppearance.BorderSize = 0; close.Click += (s,e) => Close();
-        header.Controls.Add(hint); header.Controls.Add(title); header.Controls.Add(close);
-        header.MouseWheel += Wheel; title.MouseWheel += Wheel; hint.MouseWheel += Wheel;
+
+        var header = new Panel { Dock = DockStyle.Top, Height = (int)(38 * scale), BackColor = Color.FromArgb(16, 17, 22) };
+        var title = new Label { Text = "PEBBLY  LIVE", AutoSize = false, Dock = DockStyle.Fill,
+            Padding = new Padding((int)(12 * scale), 0, 0, 0), TextAlign = ContentAlignment.MiddleLeft,
+            ForeColor = Color.FromArgb(226, 229, 236), Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+        var close = HeaderButton("×");
+        sizeButton = HeaderButton("□");
+        close.Click += (s,e) => Close();
+        sizeButton.Click += (s,e) => ToggleSize();
+        header.Controls.Add(title); header.Controls.Add(sizeButton); header.Controls.Add(close);
+        header.MouseWheel += Wheel; title.MouseWheel += Wheel;
         header.MouseEnter += (s,e) => header.Focus();
-        web.Dock = DockStyle.Fill; web.DefaultBackgroundColor = BackColor;
-        status.Dock = DockStyle.Fill; status.ForeColor = Color.LightGray;
-        status.TextAlign = ContentAlignment.MiddleCenter; status.Text = "Opening television…";
+        MouseEventHandler drag = (s,e) => { if (e.Button == MouseButtons.Left) { ReleaseCapture(); SendMessage(Handle, WM_NCLBUTTONDOWN, new IntPtr(HTCAPTION), IntPtr.Zero); } };
+        header.MouseDown += drag; title.MouseDown += drag;
+        header.DoubleClick += (s,e) => ToggleSize(); title.DoubleClick += (s,e) => ToggleSize();
+
+        web.Dock = DockStyle.Fill; web.DefaultBackgroundColor = Color.Transparent;
+        status.Dock = DockStyle.Fill; status.ForeColor = Color.FromArgb(190, 194, 204);
+        status.BackColor = Color.Transparent; status.TextAlign = ContentAlignment.MiddleCenter; status.Text = "Pebbly Live";
         Controls.Add(status); Controls.Add(web); Controls.Add(header); status.BringToFront(); header.BringToFront();
-        Resize += (s,e) => RoundCorners();
+
+        HandleCreated += (s,e) => EnableBlur();
+        Resize += (s,e) => { RoundCorners(); sizeButton.Text = WindowState == FormWindowState.Maximized ? "❐" : "□"; };
         Shown += async (s,e) => {
             animation.Start();
             try {
@@ -101,13 +122,13 @@ internal sealed class TvWindow : Form
                 };
                 web.CoreWebView2.NavigationCompleted += (sender, ev) => {
                     if (ev.IsSuccess) { status.Visible = false; web.Visible = true; }
-                    else status.Text = "The TV interface could not open. Extract the entire ZIP again.";
+                    else status.Text = "تعذر فتح الواجهة";
                 };
                 web.CoreWebView2.Navigate("https://pebbly-tv.local/index.html");
             } catch (WebView2RuntimeNotFoundException) {
-                status.Text = "Microsoft Edge WebView2 is not available on this Windows installation.\nThe clock, weather and other Pebbly activities still work.\nNo installation was started.";
+                status.Text = "Microsoft Edge WebView2 غير متوفر";
             } catch (Exception ex) {
-                status.Text = "TV could not start: " + ex.Message;
+                status.Text = "TV: " + ex.Message;
             }
         };
         animation.Tick += (s,e) => {
@@ -117,7 +138,10 @@ internal sealed class TvWindow : Form
             Bounds = new Rectangle((int)(startX + (targetX-startX)*k), Top,
                 (int)(startWidth + (targetWidth-startWidth)*k),
                 (int)(32 * scale + (targetHeight - 32 * scale)*k));
-            if (t >= 1) animation.Stop();
+            if (t >= 1) {
+                animation.Stop();
+                MinimumSize = new Size((int)(480 * scale), (int)(440 * scale));
+            }
         };
         life.Tick += (s,e) => {
             try { if (Process.GetProcessById(parentPid).HasExited || !IsWindowVisible(pill)) Close(); }
@@ -127,22 +151,76 @@ internal sealed class TvWindow : Form
         KeyPreview = true; KeyDown += (s,e) => { if (e.KeyCode == Keys.Escape) Close(); };
         RoundCorners();
     }
+
+    Button HeaderButton(string text)
+    {
+        var button = new Button { Text = text, Dock = DockStyle.Right, Width = (int)(42 * scale),
+            FlatStyle = FlatStyle.Flat, ForeColor = Color.FromArgb(225, 228, 235),
+            BackColor = Color.FromArgb(16, 17, 22), TabStop = false, Font = new Font("Segoe UI Symbol", 11) };
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(42, 44, 52);
+        return button;
+    }
+
+    void ToggleSize()
+    {
+        WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
+        RoundCorners();
+    }
+
+    void EnableBlur()
+    {
+        var accent = new AccentPolicy {
+            AccentState = 4,
+            AccentFlags = 2,
+            GradientColor = unchecked((int)0xC818171D),
+            AnimationId = 0
+        };
+        int size = Marshal.SizeOf(accent);
+        IntPtr pointer = Marshal.AllocHGlobal(size);
+        try {
+            Marshal.StructureToPtr(accent, pointer, false);
+            var data = new WindowCompositionAttributeData { Attribute = 19, Data = pointer, SizeOfData = size };
+            SetWindowCompositionAttribute(Handle, ref data);
+        } catch { } finally { Marshal.FreeHGlobal(pointer); }
+    }
+
     void Wheel(object sender, MouseEventArgs e) { SendWheel(e.Delta); }
     void SendWheel(int delta)
     {
         PostMessage(pill, 0x020A, new IntPtr((long)(delta & 0xffff) << 16), IntPtr.Zero);
-        // The parent owns the child and closes it while switching activities.
     }
+
+    protected override void WndProc(ref Message m)
+    {
+        base.WndProc(ref m);
+        if (m.Msg != WM_NCHITTEST || WindowState != FormWindowState.Normal || frame < 16) return;
+        Point p = PointToClient(Cursor.Position);
+        int grip = Math.Max(6, (int)(7 * scale));
+        bool left = p.X <= grip, right = p.X >= ClientSize.Width-grip;
+        bool top = p.Y <= grip, bottom = p.Y >= ClientSize.Height-grip;
+        if (left && top) m.Result = new IntPtr(HTTOPLEFT);
+        else if (right && top) m.Result = new IntPtr(HTTOPRIGHT);
+        else if (left && bottom) m.Result = new IntPtr(HTBOTTOMLEFT);
+        else if (right && bottom) m.Result = new IntPtr(HTBOTTOMRIGHT);
+        else if (left) m.Result = new IntPtr(HTLEFT);
+        else if (right) m.Result = new IntPtr(HTRIGHT);
+        else if (top) m.Result = new IntPtr(HTTOP);
+        else if (bottom) m.Result = new IntPtr(HTBOTTOM);
+    }
+
     void RoundCorners()
     {
-        int d = Math.Min((int)(48 * scale), Math.Min(Width, Height));
+        if (WindowState == FormWindowState.Maximized) { var oldMax = Region; Region = null; oldMax?.Dispose(); return; }
+        int d = Math.Min((int)(34 * scale), Math.Min(Width, Height));
         if (d <= 0) return;
         using (var path = new GraphicsPath()) {
-            path.AddArc(0, 0, d, d, 180, 90); path.AddArc(Width-d, 0, d, d, 270, 90);
-            path.AddArc(Width-d, Height-d, d, d, 0, 90); path.AddArc(0, Height-d, d, d, 90, 90);
+            path.AddArc(0,0,d,d,180,90); path.AddArc(Width-d,0,d,d,270,90);
+            path.AddArc(Width-d,Height-d,d,d,0,90); path.AddArc(0,Height-d,d,d,90,90);
             path.CloseFigure(); var old = Region; Region = new Region(path); old?.Dispose();
         }
     }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing) { life.Dispose(); animation.Dispose(); web.Dispose(); }
