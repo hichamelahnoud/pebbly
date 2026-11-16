@@ -606,7 +606,9 @@ impl Ui {
         let scale = Scale::from_dpi(unsafe { GetDpiForWindow(bar) });
         let s = settings::current();
         // A low taskbar (Windows 10's, lower still with small buttons) takes a smaller pill.
-        let pill_scale = Scale(scale.0 * pill_fit(info.rect.h, PILL_H_DIP, &scale, pill_size_factor(s.pill_size)));
+        let pill_factor = pill_size_factor(s.pill_size)
+            * if settings::top_island() { 1.25 } else { 1.0 };
+        let pill_scale = Scale(scale.0 * pill_fit(info.rect.h, PILL_H_DIP, &scale, pill_factor));
         let card_scale = Scale(scale.0 * if s.card_size == CardSize::Compact { 0.88 } else { 1.0 });
         let placeholder = PillContent::Timer { text: String::new(), label: "", paused: false };
         let pill_r = App::pill_home(&info, &pill_scale, placeholder.width_dip());
@@ -622,7 +624,7 @@ impl Ui {
             log(&format!("shelf: the card takes no drops ({e})"));
         }
         let morph = Morph::new(gfx, &card_window.root, card_scale.px(SHADOW_BLUR_DIP), card_scale.px(SHADOW_DY_DIP))?;
-        morph.set_blur(effects_enabled())?;
+        morph.set_blur(effects_enabled() && !settings::top_island())?;
         let card = CardVisual::new(gfx)?;
         Ok(Ui {
             bar,
@@ -1262,7 +1264,7 @@ impl App {
         let home = Self::pill_home(&self.ui.info, s, width_dip);
         let circle = Self::pill_home(&self.ui.info, s, PILL_H_DIP);
         let circle = RectPx { w: circle.h, ..circle };
-        let tail = if settings::current().pill_slivers { s.px(SLIVER_STEP_DIP * MAX_SLIVERS as f32) as i32 } else { 0 };
+        let tail = if settings::current().pill_slivers && !settings::top_island() { s.px(SLIVER_STEP_DIP * MAX_SLIVERS as f32) as i32 } else { 0 };
         fit_pill(home, circle, tail, self.ui.scale.px(ITEM_GAP_DIP) as i32, &self.ui.info, if settings::top_island() { &[] } else { &self.taskbar_items })
     }
 
@@ -2417,6 +2419,10 @@ impl App {
                 self.user_front = None;
             }
         }
+        // The TV's own media session must not replace the TV launcher while watching.
+        if self.tv_child.as_mut().is_some_and(|c| c.try_wait().ok().flatten().is_none()) {
+            self.user_front = Some((ActivityKind::Television, now));
+        }
         self.stack = stack_order(&self.presences(now), now, self.user_front);
         let hint = dragdrop::hover() == Some(DropZone::Pill);
         let front = if hint { Some(self.shelf_pill(true)) } else { self.stack.first().and_then(|k| self.pill_content(*k, now)) };
@@ -2445,7 +2451,7 @@ impl App {
             Some(front) => {
                 let (pill, compact) = self.pill_at(front.width_dip()).unwrap_or_else(|| (Self::pill_home(&self.ui.info, &self.ui.pill_scale, front.width_dip()), false));
                 let front_changed = self.front.as_ref() != Some(&front);
-                let behind: Vec<PillContent> = if settings::current().pill_slivers {
+                let behind: Vec<PillContent> = if settings::current().pill_slivers && !settings::top_island() {
                     // `get`: a file drag shows the shelf's pill even with nothing in the stack.
                     self.stack.get(1..).unwrap_or(&[]).iter().filter_map(|k| self.pill_content(*k, now)).collect()
                 } else {
@@ -4016,7 +4022,7 @@ impl App {
         if let Ok(exe) = std::env::current_exe() {
             let host = exe.with_file_name("pebbly-tv.exe");
             match std::process::Command::new(host)
-                .args([std::process::id().to_string(), (pill.x + pill.w / 2).to_string(), pill.bottom().to_string(),
+                .args([std::process::id().to_string(), (pill.x + pill.w / 2).to_string(), pill.y.to_string(),
                     (self.ui.pill_window.input.0 as isize).to_string()]).spawn() {
                 Ok(child) => self.tv_child = Some(child),
                 Err(e) => {
@@ -4492,7 +4498,7 @@ impl App {
                 }
                 Ok(())
             }
-            UiEvent::EffectsChanged => self.ui.morph.set_blur(effects_enabled()),
+            UiEvent::EffectsChanged => self.ui.morph.set_blur(effects_enabled() && !settings::top_island()),
             UiEvent::Timer(TIMER_OUTSIDE) if !self.card_pinned && self.clicked_outside() => self.close_card(),
             UiEvent::Pill(PillEvent::Hover(over)) | UiEvent::Card(CardEvent::Hover(over)) => {
                 if matches!(e, UiEvent::Pill(_)) {
@@ -4631,7 +4637,8 @@ impl App {
                 if !settings::top_island() && !settings::current().wheel_switches_activity {
                     return Ok(());
                 }
-                match (self.open, self.swipe.push(delta, now_ms())) {
+                let step = if settings::top_island() && delta.abs() >= 120 { Some(delta.signum()) } else { self.swipe.push(delta, now_ms()) };
+                match (self.open, step) {
                     (Some(OpenCard::Activity(_) | OpenCard::Brief), Some(step)) => self.step_front(step),
                     _ => Ok(()),
                 }

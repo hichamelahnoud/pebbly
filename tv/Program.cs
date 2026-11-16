@@ -35,6 +35,7 @@ internal sealed class TvWindow : Form
     readonly WebView2 web = new WebView2();
     readonly Label status = new Label();
     readonly int targetHeight;
+    readonly int targetWidth, targetX, startX, startWidth;
     readonly float scale;
     int frame;
 
@@ -45,12 +46,15 @@ internal sealed class TvWindow : Form
         var screen = Screen.FromPoint(new Point(center, bottom)).WorkingArea;
         int width = Math.Min((int)(560 * scale), screen.Width - 16);
         targetHeight = Math.Min((int)(480 * scale), screen.Height - 64);
-        int y = Math.Min(bottom + (int)(6 * scale), screen.Bottom - targetHeight - 8);
+        int y = Math.Max(screen.Top, Math.Min(bottom, screen.Bottom - targetHeight - 8));
         int x = Math.Max(screen.Left + 8, Math.Min(center - width / 2, screen.Right - width - 8));
         Text = "Pebbly TV"; FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false; TopMost = true; StartPosition = FormStartPosition.Manual;
         AutoScaleMode = AutoScaleMode.None; BackColor = Color.FromArgb(5, 5, 7);
-        Bounds = new Rectangle(x, y, width, (int)(44 * scale));
+        targetWidth = width; targetX = x;
+        startWidth = Math.Min(width, (int)(220 * scale));
+        startX = Math.Max(screen.Left, Math.Min(center - startWidth / 2, screen.Right - startWidth));
+        Bounds = new Rectangle(startX, y, startWidth, (int)(40 * scale));
         var header = new Panel { Dock = DockStyle.Top, Height = (int)(42 * scale), BackColor = BackColor };
         var title = new Label { Text = "TV / TNT", AutoSize = false, Dock = DockStyle.Left,
             Width = (int)(140 * scale), TextAlign = ContentAlignment.MiddleCenter,
@@ -109,7 +113,10 @@ internal sealed class TvWindow : Form
         animation.Tick += (s,e) => {
             frame++;
             double t = Math.Min(1.0, frame / 16.0);
-            Height = (int)(44 * scale + (targetHeight - 44 * scale) * (1 - Math.Pow(1-t, 3)));
+            double k = 1 - Math.Pow(1-t, 3);
+            Bounds = new Rectangle((int)(startX + (targetX-startX)*k), Top,
+                (int)(startWidth + (targetWidth-startWidth)*k),
+                (int)(40 * scale + (targetHeight - 40 * scale)*k));
             if (t >= 1) animation.Stop();
         };
         life.Tick += (s,e) => {

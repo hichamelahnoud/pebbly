@@ -21,6 +21,13 @@ jobs:
           cache-on-failure: true
       - name: Test IPTV imports
         run: node --test tv/tv.test.cjs
+      - name: Test TV controls in Edge
+        shell: pwsh
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tv/ui-smoke.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build TV companion
         run: dotnet build tv/Pebbly.TV.csproj --configuration Release --output tv-out
       - name: Test layout
@@ -51,7 +58,7 @@ jobs:
           Get-FileHash portable/*.exe -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 250 | Set-Content portable/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Pebbly-Top-Island-Windows-x64
+          name: Pebbly-Top-Island-TV-v2-Windows-x64
           path: portable/
           if-no-files-found: error
           retention-days: 30

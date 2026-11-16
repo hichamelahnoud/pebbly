@@ -41,7 +41,7 @@ pub fn timer_accent() -> (u8, u8, u8) {
     s.accent_from_wallpaper.then(crate::platform::wallpaper::accent).flatten().unwrap_or_else(|| s.accent())
 }
 pub const BUDS_ACCENT: (u8, u8, u8) = (0x35, 0x79, 0xFF);
-pub const PILL_H_DIP: f32 = 40.0;
+pub const PILL_H_DIP: f32 = 32.0;
 /// Each activity behind the front one peeks out this much further to the right.
 pub const SLIVER_STEP_DIP: f32 = 6.0;
 /// The widest pill (media), and how many activities behind it get a sliver.

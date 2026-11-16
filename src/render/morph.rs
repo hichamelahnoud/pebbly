@@ -132,7 +132,7 @@ impl Morph {
             bind(&nine.cast()?, side, &format!("{r}/p.mr"))?;
         }
         let flat = c.CreateMaskBrush()?;
-        flat.SetSource(&c.CreateColorBrushWithColor(FLAT_MATERIAL)?)?;
+        flat.SetSource(&c.CreateColorBrushWithColor(if crate::settings::top_island() { color(255, (5, 5, 7)) } else { FLAT_MATERIAL })?)?;
         flat.SetMask(&nine)?;
         let blur = c.CreateSpriteVisual()?;
         blur.SetBrush(&blur_brush)?;
@@ -427,3 +427,4 @@ fn shadow_surface(g: &Gfx, margin: f32) -> Result<CompositionDrawingSurface> {
         Ok(())
     })
 }
+

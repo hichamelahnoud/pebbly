@@ -25,7 +25,7 @@ Copyright 2026 nixesty; GPL-3.0-only. See LICENSE and the upstream asset notices
 
 The black capsule shows weather on the left and the local clock on the right.
 Use the mouse wheel over the capsule to cycle through weather/clock, TV, and
-active activities. Click TV / TNT to open the television panel below it. The
+active activities. Click TV / TNT to expand the television panel from the capsule. The
 panel stays open while watching; close it with ×, Escape, another capsule click,
 or switch activities by scrolling over the panel header. Channel lists scroll
 normally. Fullscreen hiding and closing Pebbly also close its TV panel.
