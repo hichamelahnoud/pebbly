@@ -47,7 +47,6 @@ internal sealed class TvWindow : Form
     readonly Timer animation = new Timer { Interval = 15 };
     readonly WebView2 web = new WebView2();
     readonly Label status = new Label();
-    readonly Button sizeButton;
     readonly int targetHeight;
     readonly int targetWidth, targetX, startX, startWidth;
     readonly float scale;
@@ -72,28 +71,13 @@ internal sealed class TvWindow : Form
         startX = Math.Max(screen.Left, Math.Min(center - startWidth / 2, screen.Right - startWidth));
         Bounds = new Rectangle(startX, y, startWidth, (int)(32 * scale));
 
-        var header = new Panel { Dock = DockStyle.Top, Height = (int)(38 * scale), BackColor = Color.FromArgb(16, 17, 22) };
-        var title = new Label { Text = "PEBBLY  LIVE", AutoSize = false, Dock = DockStyle.Fill,
-            Padding = new Padding((int)(12 * scale), 0, 0, 0), TextAlign = ContentAlignment.MiddleLeft,
-            ForeColor = Color.FromArgb(226, 229, 236), Font = new Font("Segoe UI", 9, FontStyle.Bold) };
-        var close = HeaderButton("×");
-        sizeButton = HeaderButton("□");
-        close.Click += (s,e) => Close();
-        sizeButton.Click += (s,e) => ToggleSize();
-        header.Controls.Add(title); header.Controls.Add(sizeButton); header.Controls.Add(close);
-        header.MouseWheel += Wheel; title.MouseWheel += Wheel;
-        header.MouseEnter += (s,e) => header.Focus();
-        MouseEventHandler drag = (s,e) => { if (e.Button == MouseButtons.Left) { ReleaseCapture(); SendMessage(Handle, WM_NCLBUTTONDOWN, new IntPtr(HTCAPTION), IntPtr.Zero); } };
-        header.MouseDown += drag; title.MouseDown += drag;
-        header.DoubleClick += (s,e) => ToggleSize(); title.DoubleClick += (s,e) => ToggleSize();
-
         web.Dock = DockStyle.Fill; web.DefaultBackgroundColor = Color.Transparent;
         status.Dock = DockStyle.Fill; status.ForeColor = Color.FromArgb(190, 194, 204);
         status.BackColor = Color.Transparent; status.TextAlign = ContentAlignment.MiddleCenter; status.Text = "Pebbly Live";
-        Controls.Add(status); Controls.Add(web); Controls.Add(header); status.BringToFront(); header.BringToFront();
+        Controls.Add(status); Controls.Add(web); status.BringToFront();
 
         HandleCreated += (s,e) => EnableBlur();
-        Resize += (s,e) => { RoundCorners(); sizeButton.Text = WindowState == FormWindowState.Maximized ? "❐" : "□"; };
+        Resize += (s,e) => RoundCorners();
         Shown += async (s,e) => {
             animation.Start();
             try {
@@ -118,6 +102,8 @@ internal sealed class TvWindow : Form
                     try { command = ev.TryGetWebMessageAsString(); } catch { return; }
                     if (command == "next") SendWheel(-120);
                     if (command == "previous") SendWheel(120);
+                    if (command == "toggle-size") ToggleSize();
+                    if (command == "drag") { ReleaseCapture(); SendMessage(Handle, WM_NCLBUTTONDOWN, new IntPtr(HTCAPTION), IntPtr.Zero); }
                     if (command == "close") Close();
                 };
                 web.CoreWebView2.NavigationCompleted += (sender, ev) => {
@@ -152,16 +138,6 @@ internal sealed class TvWindow : Form
         RoundCorners();
     }
 
-    Button HeaderButton(string text)
-    {
-        var button = new Button { Text = text, Dock = DockStyle.Right, Width = (int)(42 * scale),
-            FlatStyle = FlatStyle.Flat, ForeColor = Color.FromArgb(225, 228, 235),
-            BackColor = Color.FromArgb(16, 17, 22), TabStop = false, Font = new Font("Segoe UI Symbol", 11) };
-        button.FlatAppearance.BorderSize = 0;
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(42, 44, 52);
-        return button;
-    }
-
     void ToggleSize()
     {
         WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
@@ -173,7 +149,7 @@ internal sealed class TvWindow : Form
         var accent = new AccentPolicy {
             AccentState = 4,
             AccentFlags = 2,
-            GradientColor = unchecked((int)0x9418171D),
+            GradientColor = unchecked((int)0x6618171D),
             AnimationId = 0
         };
         int size = Marshal.SizeOf(accent);

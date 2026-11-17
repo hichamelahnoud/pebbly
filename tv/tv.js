@@ -139,6 +139,10 @@ function setMode(value){
 $('search').addEventListener('input',render);
 $('tnt').onclick=()=>setMode('tnt');$('radio').onclick=()=>setMode('radio');$('iptv').onclick=()=>setMode('iptv');
 $('stop').onclick=()=>{clear();active=null;say('');render()};$('retry').onclick=()=>{if(active)play(active)};
+const hostCommand=command=>window.chrome?.webview?.postMessage(command);
+$('closeWindow').onclick=()=>hostCommand('close');
+$('sizeWindow').onclick=()=>hostCommand('toggle-size');
+$('windowDrag').addEventListener('mousedown',e=>{if(e.button===0&&!e.target.closest('button'))hostCommand('drag')});
 $('screenFull').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await screen.requestFullscreen()}catch{}};
 $('editor').onsubmit=e=>{e.preventDefault();const name=e.target.elements.name.value.trim(),url=e.target.elements.url.value.trim();if(!name||!validURL(url)){say('الرابط غير صالح');return}custom.push({id:'custom-'+Date.now(),name,sources:[url]});custom=normalize(custom.slice(-500));save();e.target.reset();render()};
 $('importButton').onclick=()=>$('import').click();
