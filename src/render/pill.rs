@@ -1213,7 +1213,7 @@ fn paint_value_label(ink: &Ink, circle: Option<(&str, (u8, u8, u8))>, value: &st
     let x = d(36.0);
     let vw = ink.measure(value, &title)?;
     ink.text(value, rect(x, 0.0, vw + d(2.0), h), &title)?;
-    let rest = TextStyle::new(Face::Text, Weight::Regular, d(12.5), white(0.7)).ellipsis();
+    let rest = TextStyle::new(Face::Text, Weight::Medium, d(12.7), white(0.88)).ellipsis();
     ink.text(&format!(" · {label}"), rect(x + vw, 0.0, (w - x - vw - d(14.0)).max(0.0), h), &rest)
 }
 

@@ -117,7 +117,13 @@ function render(){
   const wrap=document.createElement('div');wrap.className='channel-wrap'+(mode==='iptv'?' removable':'');
   const row=document.createElement('button');row.className='channel'+(active===ch?' selected':'');row.type='button';row.setAttribute('aria-label',ch.name);
   const logo=document.createElement('img');logo.className='logo';logo.src=ch.logo||fallbackLogo(ch.name);logo.alt='';logo.loading='lazy';logo.onerror=()=>{logo.onerror=null;logo.src=fallbackLogo(ch.name)};
-  const name=document.createElement('span');name.className='name';name.textContent=ch.name;row.append(logo,name);row.onclick=()=>play(ch);wrap.append(row);
+  const copy=document.createElement('span');copy.className='channel-copy';
+  const name=document.createElement('span');name.className='name';
+  const meta=document.createElement('span');meta.className='meta';
+  const frequency=ch.name.match(/^(.*?)\s+-\s+([0-9.]+\s*FM)$/i);
+  name.textContent=frequency?frequency[1]:ch.name;
+  meta.textContent=frequency?frequency[2]:(ch.group||(mode==='iptv'?'IPTV':'TNT'));
+  copy.append(name,meta);row.append(logo,copy);row.onclick=()=>play(ch);wrap.append(row);
   if(mode==='iptv'){
    const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.textContent='×';remove.title='حذف';remove.setAttribute('aria-label','حذف '+ch.name);
    remove.onclick=()=>{if(active===ch){clear();active=null}custom=custom.filter(c=>c!==ch);save();render()};wrap.append(remove)
