@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pebbly Live</title>
@@ -29,38 +29,52 @@ body:has(.editor:not([hidden])) .screen{width:min(100%,calc((100vh - 264px)*16/9
 .message{height:24px;display:flex;align-items:center;gap:6px;flex:0 0 24px;padding-inline:3px}#status{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d7dfeb;font-size:12px}.action{height:26px;border:0;border-radius:9px;padding:0 11px;background:#ffffff12;font-size:12px;font-weight:620}.action:hover{background:#ffffff24}
 .editor{display:grid;grid-template-columns:minmax(80px,140px) minmax(90px,1fr) auto auto;gap:5px;flex:0 0 36px}.editor input{height:36px;min-width:0;border:0;border-radius:10px;padding:0 9px;color:white;background:#ffffff12;font-size:12px}.editor input::placeholder{color:#b8c2d2}.editor input[name=url]{direction:ltr}.editor .action{height:36px;background:rgba(var(--accent),.23)}
 .channels{display:flex;flex:0 0 64px;min-height:64px;align-items:center;gap:7px;overflow-x:auto;overflow-y:hidden;padding:5px 7px;border-radius:18px;background:#ffffff0d;overscroll-behavior:contain;scrollbar-width:none;min-width:0}.channels::-webkit-scrollbar{display:none}
-.channel-wrap{position:relative;flex:0 0 50px;width:50px;height:50px}.channel{width:100%;height:100%;display:grid;place-items:center;border:0;border-radius:14px;background:#ffffff0c;padding:4px;transition:background .16s,transform .16s;overflow:hidden}.channel:hover{background:#ffffff26;transform:translateY(-1px)}.channel.selected{background:rgba(var(--accent),.34);box-shadow:inset 0 0 0 1px rgba(var(--accent),.75)}.logo{width:40px;height:40px;object-fit:contain;border-radius:10px;background:#f7f8fb;padding:3px;display:block}.channel-copy{display:none}.remove{position:absolute;z-index:3;left:-2px;top:-2px;width:19px;height:19px;border:0;border-radius:50%;background:#293445;color:white;font-size:13px;line-height:1;padding:0}.remove:hover{background:#bd394f}.channels:empty::after{content:"لا توجد قنوات";color:#aab6c8;font-size:12px;padding-inline:5px}
+.channel-wrap{position:relative;flex:0 0 50px;width:50px;height:50px}.channel{width:100%;height:100%;display:grid;place-items:center;border:0;border-radius:14px;background:#ffffff0c;padding:4px;transition:background .16s,transform .16s;overflow:hidden}.channel:hover{background:#ffffff26;transform:translateY(-1px)}.channel.selected{background:rgba(var(--accent),.34);box-shadow:inset 0 0 0 1px rgba(var(--accent),.75)}.logo{width:40px;height:40px;object-fit:contain;border-radius:10px;background:#f7f8fb;padding:3px;display:block}.channel-copy{display:none}.remove{position:absolute;z-index:3;left:-2px;top:-2px;width:19px;height:19px;border:0;border-radius:50%;background:#293445;color:white;font-size:13px;line-height:1;padding:0}.remove:hover{background:#bd394f}.channels:empty::after{content:"No channels";color:#aab6c8;font-size:12px;padding-inline:5px}
 [hidden]{display:none!important}#import{display:none}
 @media(max-width:520px){body{padding:9px;gap:6px}.tab{min-width:57px;padding:0 8px;font-size:12px}.search{width:95px}.radio-card{width:83%;grid-template-columns:72px minmax(0,1fr);gap:10px}.radio-logo{width:72px;height:72px;border-radius:17px}.radio-controls{padding:7px 10px}.radio-play{width:35px;height:35px;flex-basis:35px}.radio-kicker{font-size:9px}.radio-info{gap:4px}.radio-wave{gap:2px}.channel-wrap{flex-basis:46px;width:46px;height:46px}.logo{width:36px;height:36px}}
+
+/* Frameless layout and unboxed station artwork. */
+body{border-radius:0;padding:12px 14px;background:linear-gradient(145deg,rgba(30,39,53,.62),rgba(12,17,26,.62))}
+.channels{background:transparent;border-radius:0;padding:4px 0;gap:9px;justify-content:flex-start;margin-top:auto;flex:0 0 64px}
+body[data-mode="tnt"] .channels{justify-content:space-between}
+.channel-wrap{flex:0 0 56px;width:56px;height:56px}
+.channel{background:transparent;border-radius:10px;padding:3px;overflow:visible}
+.channel:hover{background:transparent;transform:translateY(-2px)}
+.channel.selected{background:transparent;box-shadow:none}
+.channel.selected::after{content:"";position:absolute;bottom:-3px;width:20px;height:3px;border-radius:4px;background:rgb(var(--accent))}
+.logo{width:100%;height:100%;object-fit:contain;border-radius:0;background:transparent;padding:0;box-shadow:none}
+.radio-logo{background:transparent;padding:0;box-shadow:none;border-radius:0}
+.screen{background:#0b111b}
+@media(max-width:620px){body[data-mode="tnt"] .channels{justify-content:flex-start}.channel-wrap{flex-basis:48px;width:48px;height:48px}}
 </style>
 </head>
-<body>
+<body data-mode="tnt">
 <header class="window-bar glass" id="windowDrag">
  <div class="brand">Pebbly Live</div>
  <div class="window-actions">
-  <button class="window-button" id="sizeWindow" title="تكبير أو تصغير" aria-label="تكبير أو تصغير"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
-  <button class="window-button close" id="closeWindow" title="إغلاق" aria-label="إغلاق"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+  <button class="window-button" id="sizeWindow" title="Maximize or restore" aria-label="Maximize or restore"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></button>
+  <button class="window-button close" id="closeWindow" title="Close" aria-label="Close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
  </div>
 </header>
 <nav class="tabs glass" id="tabs">
  <button id="tnt" class="tab active" aria-pressed="true">TNT</button>
- <button id="radio" class="tab" aria-pressed="false">الراديو</button>
+ <button id="radio" class="tab" aria-pressed="false">Radio</button>
  <button id="iptv" class="tab" aria-pressed="false">IPTV</button>
- <input id="search" class="search" type="search" placeholder="بحث عن قناة" autocomplete="off">
+ <input id="search" class="search" type="search" placeholder="Search channels" autocomplete="off">
 </nav>
 <section class="screen" id="screen">
  <canvas id="noise" width="180" height="102"></canvas>
- <div class="empty" id="empty"><div class="mark"><svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="17" rx="4"/><path d="m11 3 5 5 5-5M12 29h8"/></svg></div><strong id="emptyTitle">البث المباشر</strong><small id="emptyHint">اختر قناة من الشريط أسفل الشاشة</small></div>
+ <div class="empty" id="empty"><div class="mark"><svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="17" rx="4"/><path d="m11 3 5 5 5-5M12 29h8"/></svg></div><strong id="emptyTitle">Live TV</strong><small id="emptyHint">Choose a channel below</small></div>
  <video id="video" controls playsinline></video>
- <iframe id="frame" title="البث المباشر" allow="autoplay; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
- <div class="radio-stage" id="radioStage" hidden><div class="radio-card"><img id="radioLogo" class="radio-logo" alt=""><div class="radio-info"><div class="radio-kicker">PEBBLY RADIO</div><div id="radioName" class="radio-name" dir="auto"></div><div id="radioFrequency" class="radio-frequency"></div><div class="radio-live"><i></i><span id="radioState">جاهز للاستماع</span></div></div><div class="radio-controls"><button type="button" class="radio-play" id="radioPlay" aria-label="تشغيل"><svg viewBox="0 0 24 24"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg></button><div class="radio-wave" id="radioWave" aria-hidden="true"><i style="--h:8px;--d:0s"></i><i style="--h:25px;--d:-0.13s"></i><i style="--h:19px;--d:-0.26s"></i><i style="--h:13px;--d:-0.39s"></i><i style="--h:30px;--d:-0.52s"></i><i style="--h:24px;--d:-0.65s"></i><i style="--h:18px;--d:-0.78s"></i><i style="--h:12px;--d:0s"></i><i style="--h:29px;--d:-0.13s"></i><i style="--h:23px;--d:-0.26s"></i><i style="--h:17px;--d:-0.39s"></i><i style="--h:11px;--d:-0.52s"></i><i style="--h:28px;--d:-0.65s"></i><i style="--h:22px;--d:-0.78s"></i><i style="--h:16px;--d:0s"></i><i style="--h:10px;--d:-0.13s"></i><i style="--h:27px;--d:-0.26s"></i><i style="--h:21px;--d:-0.39s"></i><i style="--h:15px;--d:-0.52s"></i><i style="--h:9px;--d:-0.65s"></i><i style="--h:26px;--d:-0.78s"></i><i style="--h:20px;--d:0s"></i><i style="--h:14px;--d:-0.13s"></i><i style="--h:8px;--d:-0.26s"></i></div><label class="radio-volume"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg><input id="radioVolume" type="range" min="0" max="1" step=".01" value="1" aria-label="مستوى الصوت"></label></div><audio id="audio"></audio></div></div>
- <div class="screen-tools"><button class="icon-button" id="screenFull" title="ملء الشاشة" aria-label="ملء الشاشة">⛶</button></div>
+ <iframe id="frame" title="Live TV" allow="autoplay; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+ <div class="radio-stage" id="radioStage" hidden><div class="radio-card"><img id="radioLogo" class="radio-logo" alt=""><div class="radio-info"><div class="radio-kicker">PEBBLY RADIO</div><div id="radioName" class="radio-name" dir="auto"></div><div id="radioFrequency" class="radio-frequency"></div><div class="radio-live"><i></i><span id="radioState">Ready to listen</span></div></div><div class="radio-controls"><button type="button" class="radio-play" id="radioPlay" aria-label="Play"><svg viewBox="0 0 24 24"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg></button><div class="radio-wave" id="radioWave" aria-hidden="true"><i style="--h:8px;--d:0s"></i><i style="--h:25px;--d:-0.13s"></i><i style="--h:19px;--d:-0.26s"></i><i style="--h:13px;--d:-0.39s"></i><i style="--h:30px;--d:-0.52s"></i><i style="--h:24px;--d:-0.65s"></i><i style="--h:18px;--d:-0.78s"></i><i style="--h:12px;--d:0s"></i><i style="--h:29px;--d:-0.13s"></i><i style="--h:23px;--d:-0.26s"></i><i style="--h:17px;--d:-0.39s"></i><i style="--h:11px;--d:-0.52s"></i><i style="--h:28px;--d:-0.65s"></i><i style="--h:22px;--d:-0.78s"></i><i style="--h:16px;--d:0s"></i><i style="--h:10px;--d:-0.13s"></i><i style="--h:27px;--d:-0.26s"></i><i style="--h:21px;--d:-0.39s"></i><i style="--h:15px;--d:-0.52s"></i><i style="--h:9px;--d:-0.65s"></i><i style="--h:26px;--d:-0.78s"></i><i style="--h:20px;--d:0s"></i><i style="--h:14px;--d:-0.13s"></i><i style="--h:8px;--d:-0.26s"></i></div><label class="radio-volume"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg><input id="radioVolume" type="range" min="0" max="1" step=".01" value="1" aria-label="Volume"></label></div><audio id="audio"></audio></div></div>
+ <div class="screen-tools"><button class="icon-button" id="screenFull" title="Full screen" aria-label="Full screen">⛶</button></div>
 </section>
-<div class="message"><span id="status" role="status" aria-live="polite"></span><button class="action" id="retry" hidden>إعادة</button><button class="action" id="stop" hidden>إيقاف</button></div>
+<div class="message"><span id="status" role="status" aria-live="polite"></span><button class="action" id="retry" hidden>Retry</button><button class="action" id="stop" hidden>Stop</button></div>
 <form class="editor" id="editor" hidden>
- <input name="name" placeholder="اسم القناة" maxlength="80" required>
- <input name="url" placeholder="رابط البث" maxlength="2048" required>
- <button class="action" type="submit">إضافة</button><button class="action" type="button" id="importButton">M3U</button>
+ <input name="name" placeholder="Channel name" maxlength="80" required>
+ <input name="url" placeholder="Stream URL" maxlength="2048" required>
+ <button class="action" type="submit">Add</button><button class="action" type="button" id="importButton">M3U</button>
  <input id="import" type="file" accept=".m3u,.m3u8,.json">
 </form>
 <div class="channels" id="channels"></div>
