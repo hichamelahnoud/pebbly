@@ -6,15 +6,22 @@ const logoSvg=(text,bg,fg='#fff',accent='#fff')=>'data:image/svg+xml;charset=utf
 );
 const logoPath=(kind,id)=>'logos/'+kind+'/'+id+'.png';
 const builtin=[
- {id:'aoula',name:'Al Aoula',logo:logoPath('tv','aoula'),rgb:'242,138,34',sources:[snrt('73_aloula_w1dqfwm'),'https://streaming.snrtlive.ma/live/slaalaoula/slaalaoula.m3u8']},
- {id:'arryadia',name:'Arryadia',logo:logoPath('tv','arryadia'),rgb:'22,155,98',sources:[snrt('73_arryadia_k2tgcj0'),'https://streaming.snrtlive.ma/live/slaarryadia/slaarryadia.m3u8']},
- {id:'2m',name:'2M Monde',logo:logoPath('tv','2m'),rgb:'194,72,133',sources:['https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8']},
- {id:'medi1',name:'Medi 1 TV',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:['https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-maghreb_jnbspmg/playlist.m3u8']},
- {id:'tamazight',name:'Tamazight',logo:logoPath('tv','tamazight'),logoBackup:'https://i.imgur.com/fm6S7we.png',rgb:'21,115,188',sources:[snrt('73_tamazight_tccybxt')]},
- {id:'maghribia',name:'Al Maghribia',logo:logoPath('tv','maghribia'),logoBackup:'https://i.imgur.com/7GaahYh.png',rgb:'7,140,136',sources:[snrt('73_almaghribia_83tz85q')]},
- {id:'athaqafia',name:'Athaqafia',logo:logoPath('tv','athaqafia'),logoBackup:'https://i.imgur.com/mrwFI2L.png',rgb:'117,82,168',sources:[snrt('73_arrabia_hthcj4p')]},
- {id:'laayoune',name:'Laayoune',logo:logoPath('tv','laayoune'),logoBackup:'https://i.ibb.co/GQmw3nx/laayoune.png',rgb:'217,108,37',sources:[snrt('73_laayoune_pgagr52')]},
- {id:'assadissa',name:'Assadissa',logo:logoPath('tv','assadissa'),logoBackup:'https://i.imgur.com/un6qTGO.png',rgb:'164,123,27',sources:['https://streaming.snrtlive.ma/live/slaassadissa/slaassadissa.m3u8']}
+ {id:'aoula',name:'Al Aoula',logo:logoPath('tv','aoula'),rgb:'242,138,34',sources:[snrt('73_aloula_w1dqfwm'),'https://streaming.snrtlive.ma/live/slaalaoula/slaalaoula.m3u8','https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/al_aoula_inter/hls_snrt/index.m3u8']},
+ {id:'2m',name:'2M Maroc',logo:logoPath('tv','2m'),rgb:'194,72,133',sources:['https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/2m_maroc/hls_snrt/index.m3u8','https://live.2m.ma/2m/live.m3u8']},
+ {id:'arryadia',name:'Arryadia',logo:logoPath('tv','arryadia'),rgb:'22,155,98',sources:[snrt('73_arryadia_k2tgcj0'),'https://streaming.snrtlive.ma/live/slaarryadia/slaarryadia.m3u8','https://cdn-globecast.akamaized.net/live/eds/arriadia/hls_snrt/index.m3u8']},
+ {id:'athaqafia',name:'Athaqafia',logo:logoPath('tv','athaqafia'),logoBackup:'https://i.imgur.com/mrwFI2L.png',rgb:'117,82,168',sources:[snrt('73_arrabia_hthcj4p'),'https://cdn-globecast.akamaized.net/live/eds/arrabiaa/hls_snrt/index.m3u8']},
+ {id:'maghribia',name:'Al Maghribia',logo:logoPath('tv','maghribia'),logoBackup:'https://i.imgur.com/7GaahYh.png',rgb:'7,140,136',sources:[snrt('73_almaghribia_83tz85q'),'https://cdn-globecast.akamaized.net/live/eds/al_maghribia_snrt/hls_snrt/index.m3u8']},
+ {id:'assadissa',name:'Assadissa',logo:logoPath('tv','assadissa'),logoBackup:'https://i.imgur.com/un6qTGO.png',rgb:'50,160,90',sources:['https://streaming.snrtlive.ma/live/slaassadissa/slaassadissa.m3u8','https://cdn-globecast.akamaized.net/live/eds/assadissa/hls_snrt/index.m3u8',snrt('73_assadissa_7b7u5n1')]},
+ {id:'aflam',name:'Aflam TV (7)',logo:logoPath('tv','aflam'),logoBackup:'https://stream.moroccohelp.com/logos/tv/aflam-tv.png',rgb:'221,56,61',sources:['https://live20.bozztv.com/gin-36bay4/ga-aflamtv7/index.m3u8']},
+ {id:'tamazight',name:'Tamazight',logo:logoPath('tv','tamazight'),logoBackup:'https://i.imgur.com/fm6S7we.png',rgb:'184,148,66',sources:[snrt('73_tamazight_tccybxt'),'https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/tamazight_tv8_snrt/hls_snrt/index.m3u8']},
+ {id:'laayoune',name:'Laayoune',logo:logoPath('tv','laayoune'),logoBackup:'https://i.ibb.co/GQmw3nx/laayoune.png',rgb:'217,108,37',sources:[snrt('73_laayoune_pgagr52'),'https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/al_aoula_laayoune/hls_snrt/index.m3u8']},
+ {id:'medi1',name:'Medi 1 TV Maghreb',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:['https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-maghreb_jnbspmg/playlist.m3u8','https://streaming1.medi1tv.com/live/smil:medi1tv.smil/playlist.m3u8']},
+ {id:'2mmonde',name:'2M Monde',logo:logoPath('tv','2mmonde'),logoBackup:'https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/2mmonde.png',rgb:'194,72,133',sources:['https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8','https://d2qh3gh0k5vp3v.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/37024f97-ae88-4dce-bae0-bea94f90db4e/1.m3u8']},
+ {id:'medi1arabic',name:'Medi 1 TV Arabic',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:['https://streaming1.medi1tv.com/live/smil:medi1ar.smil/playlist.m3u8']},
+ {id:'medi1afrique',name:'Medi 1 TV Afrique',logo:logoPath('tv','medi1afrique'),logoBackup:'https://i.imgur.com/gHwCFb0.png',rgb:'215,25,49',sources:['https://streaming1.medi1tv.com/live/smil:medi1fr.smil/playlist.m3u8']},
+ {id:'chadatv',name:'Chada TV',logo:logoPath('tv','chadatv'),logoBackup:'https://i.imgur.com/inJyJBN.png',rgb:'192,45,60',sources:['https://chadatv.vedge.infomaniak.com/livecast/ik:chadatv/manifest.m3u8']},
+ {id:'m24',name:'M24 TV',logo:logoPath('tv','m24'),logoBackup:'https://i.imgur.com/7uv5Feu.png',rgb:'76,131,190',sources:['https://63df3191463ce.streamlock.net/live/ngrp:Live2.stream_all/index.m3u8','https://www.maptvnews.ma/live/smil:OutStream1.smil/playlist.m3u8']},
+ {id:'telemaroc',name:'Tele Maroc',logo:logoPath('tv','telemaroc'),logoBackup:'https://upload.wikimedia.org/wikipedia/commons/8/8f/Logotelemaroc.jpeg',rgb:'181,54,72',sources:['https://api.new.livestream.com/accounts/27130247/events/9197096/live.m3u8']}
 ];
 const radios=[
  {id:"mohammed-6",kind:'radio',name:"Radio Mohammed VI du Saint Coran - 98.6 FM",group:"Holy Quran",logo:logoPath('radio',"mohammed-6"),rgb:"176,131,38",sources:["https://cdn.live.easybroadcast.io/live/radio_med_VI/chunks.m3u8"]},
@@ -91,8 +98,8 @@ function ready(ch,token){
 }
 function play(ch,index=0){
  clear();active=ch;render();const token=generation,url=ch.sources[index];
- if(!url){say('Stream unavailable');$('retry').hidden=false;if(ch.kind==='radio'){$('radioStage').hidden=false;$('empty').hidden=true;setAccent(ch);radioUI('error')}return}
- $('stop').hidden=false;say(ch.name);setAccent(ch);
+ if(!url){say(ch.name+' — Stream unavailable');$('retry').hidden=false;$('stop').hidden=false;if(ch.kind==='radio'){$('radioStage').hidden=false;$('empty').hidden=true;setAccent(ch);radioUI('error')}return}
+ $('stop').hidden=false;say(ch.name+(index?' — Trying alternate stream '+(index+1):''));setAccent(ch);
  let failed=false;
  const fail=()=>{if(token!==generation||failed)return;failed=true;play(ch,index+1)};
  const u=new URL(url);
