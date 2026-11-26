@@ -6,7 +6,7 @@ const server=http.createServer((req,res)=>{const name=new URL(req.url,'http://lo
  browser=await chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage({viewport:{width:720,height:578}});const errors=[];
  await page.addInitScript(()=>{window.__commands=[];window.chrome=window.chrome||{};window.chrome.webview={postMessage:m=>window.__commands.push(m)}});
  page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:'+server.address().port);
- assert.equal(await page.locator('.channel').count(),9);assert.equal(await page.locator('.channel .logo').count(),9);assert.equal(await page.locator('.channel-copy:visible').count(),0);assert.equal(await page.locator('html').getAttribute('lang'),'en');assert.equal(await page.locator('#radio').textContent(),'Radio');const tile=await page.locator('.channel').first().boundingBox();assert.ok(tile.width<=56&&tile.height<=56);
+ assert.equal(await page.locator('.channel').count(),16);assert.equal(await page.locator('.channel .logo').count(),16);assert.equal(await page.locator('.channel-copy:visible').count(),0);assert.equal(await page.locator('html').getAttribute('lang'),'en');assert.equal(await page.locator('#radio').textContent(),'Radio');assert.equal(await page.locator('.channel[aria-label="Aflam TV (7)"]').count(),1);assert.equal(await page.locator('.channel[aria-label="2M Maroc"]').count(),1);const tile=await page.locator('.channel').first().boundingBox();assert.ok(tile.width<=56&&tile.height<=56);
  await page.locator('#sizeWindow').click();await page.locator('#closeWindow').click();await page.locator('.brand').dispatchEvent('mousedown',{button:0});
  await page.waitForFunction(()=>['toggle-size','close','drag'].every(x=>window.__commands.includes(x)));
  const box=await page.locator('#screen').boundingBox();assert.ok(Math.abs(box.width/box.height-16/9)<.02);
@@ -15,6 +15,6 @@ const server=http.createServer((req,res)=>{const name=new URL(req.url,'http://lo
  await page.reload();await page.locator('#iptv').click();assert.equal(await page.locator('.channel').count(),1);await page.locator('.remove').click();assert.equal(await page.locator('.channel').count(),0);
  await page.locator('#import').setInputFiles({name:'channels.m3u',mimeType:'text/plain',buffer:Buffer.from('#EXTM3U\n#EXTINF:-1 tvg-logo="https://example.com/a.png",الأولى\nhttps://example.com/a.m3u8\n#EXTINF:-1,الثانية\nhttps://example.com/b.m3u8')});
  await page.waitForFunction(()=>document.querySelectorAll('.channel').length===2);assert.equal(await page.locator('.channel .logo').first().getAttribute('src'),'https://example.com/a.png');
- await page.locator('#tnt').click();assert.equal(await page.locator('.channel').count(),9);await page.locator('#tabs').hover();await page.mouse.wheel(0,120);await page.waitForFunction(()=>window.__commands.includes('next'));
+ await page.locator('#tnt').click();assert.equal(await page.locator('.channel').count(),16);await page.locator('#tabs').hover();await page.mouse.wheel(0,120);await page.waitForFunction(()=>window.__commands.includes('next'));
  assert.deepEqual(errors,[]);console.log('PASS: logo-only horizontal dock, integrated window controls, custom radio controls, 42 stations and IPTV.');
 }finally{if(browser)await browser.close();server.close();}})().catch(e=>{console.error(e);process.exitCode=1});
