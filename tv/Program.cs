@@ -65,7 +65,7 @@ internal sealed class TvWindow : Form
         Text = "Pebbly Live"; FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false; TopMost = true; StartPosition = FormStartPosition.Manual;
         AutoScaleMode = AutoScaleMode.None; BackColor = Color.FromArgb(10, 11, 15);
-        Padding = new Padding(Math.Max(3, (int)(4 * scale)));
+        Padding = Padding.Empty;
         targetWidth = width; targetX = x;
         startWidth = Math.Min(width, (int)(220 * scale));
         startX = Math.Max(screen.Left, Math.Min(center - startWidth / 2, screen.Right - startWidth));
@@ -108,11 +108,11 @@ internal sealed class TvWindow : Form
                 };
                 web.CoreWebView2.NavigationCompleted += (sender, ev) => {
                     if (ev.IsSuccess) { status.Visible = false; web.Visible = true; }
-                    else status.Text = "تعذر فتح الواجهة";
+                    else status.Text = "Could not open the player";
                 };
                 web.CoreWebView2.Navigate("https://pebbly-tv.local/index.html");
             } catch (WebView2RuntimeNotFoundException) {
-                status.Text = "Microsoft Edge WebView2 غير متوفر";
+                status.Text = "Microsoft Edge WebView2 is unavailable";
             } catch (Exception ex) {
                 status.Text = "TV: " + ex.Message;
             }
@@ -148,7 +148,7 @@ internal sealed class TvWindow : Form
     {
         var accent = new AccentPolicy {
             AccentState = 4,
-            AccentFlags = 2,
+            AccentFlags = 0,
             GradientColor = unchecked((int)0x6618171D),
             AnimationId = 0
         };
@@ -188,7 +188,7 @@ internal sealed class TvWindow : Form
     void RoundCorners()
     {
         if (WindowState == FormWindowState.Maximized) { var oldMax = Region; Region = null; oldMax?.Dispose(); return; }
-        int d = Math.Min((int)(34 * scale), Math.Min(Width, Height));
+        int d = Math.Min((int)(48 * scale), Math.Min(Width, Height));
         if (d <= 0) return;
         using (var path = new GraphicsPath()) {
             path.AddArc(0,0,d,d,180,90); path.AddArc(Width-d,0,d,d,270,90);
