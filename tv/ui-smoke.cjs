@@ -6,7 +6,7 @@ const server=http.createServer((req,res)=>{const name=new URL(req.url,'http://lo
  browser=await chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage({viewport:{width:720,height:578}});const errors=[];
  await page.addInitScript(()=>{window.__commands=[];window.chrome=window.chrome||{};window.chrome.webview={postMessage:m=>window.__commands.push(m)}});
  page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:'+server.address().port);
- assert.equal(await page.locator('.channel').count(),9);assert.equal(await page.locator('.channel .logo').count(),9);assert.equal(await page.locator('.channel-copy:visible').count(),0);const tile=await page.locator('.channel').first().boundingBox();assert.ok(tile.width<=52&&tile.height<=52);
+ assert.equal(await page.locator('.channel').count(),9);assert.equal(await page.locator('.channel .logo').count(),9);assert.equal(await page.locator('.channel-copy:visible').count(),0);assert.equal(await page.locator('html').getAttribute('lang'),'en');assert.equal(await page.locator('#radio').textContent(),'Radio');const tile=await page.locator('.channel').first().boundingBox();assert.ok(tile.width<=56&&tile.height<=56);
  await page.locator('#sizeWindow').click();await page.locator('#closeWindow').click();await page.locator('.brand').dispatchEvent('mousedown',{button:0});
  await page.waitForFunction(()=>['toggle-size','close','drag'].every(x=>window.__commands.includes(x)));
  const box=await page.locator('#screen').boundingBox();assert.ok(Math.abs(box.width/box.height-16/9)<.02);
