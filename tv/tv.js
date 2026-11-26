@@ -65,6 +65,13 @@ const {validURL,normalize,parseM3U}=TVData;
 let custom=[];try{custom=normalize(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}
 let mode='tnt',active=null,hls=null,timeout=null,generation=0;
 const video=$('video'),audio=$('audio'),iframe=$('frame'),screen=$('screen');
+function radioUI(state){
+ const playing=state==='playing';
+ $('radioStage').classList.toggle('is-playing',playing);
+ $('radioState').textContent=({playing:'بث مباشر',paused:'متوقف مؤقتاً',loading:'جاري الاتصال…',error:'البث غير متاح',idle:'جاهز للاستماع'})[state];
+ $('radioPlayIcon').setAttribute('d',playing?'M7 5h4v14H7zM13 5h4v14h-4z':'M8 5v14l11-7z');
+ $('radioPlay').setAttribute('aria-label',playing?'إيقاف مؤقت':'تشغيل');
+}
 function say(value){$('status').textContent=value||''}
 function save(){try{localStorage.setItem(key,JSON.stringify(custom));return true}catch{say('تعذر حفظ اللائحة');return false}}
 function setAccent(ch){
@@ -73,27 +80,32 @@ function setAccent(ch){
  else document.documentElement.style.removeProperty('--ambient')
 }
 function clear(){
- generation++;clearTimeout(timeout);if(hls){hls.destroy();hls=null}
+ generation++;clearTimeout(timeout);audio.onplaying=null;audio.onerror=null;audio.onpause=null;audio.onwaiting=null;video.onplaying=null;video.onerror=null;radioUI('idle');if(hls){hls.destroy();hls=null}
  for(const media of [video,audio]){media.pause();media.removeAttribute('src');media.load()}
  video.style.display='none';iframe.removeAttribute('src');iframe.style.display='none';$('radioStage').hidden=true;
  $('empty').hidden=false;$('noise').hidden=false;$('retry').hidden=true;$('stop').hidden=true;screen.classList.remove('playing');setAccent(null)
 }
 function ready(ch,token){
- if(token!==generation)return;clearTimeout(timeout);$('empty').hidden=true;$('noise').hidden=true;
+ if(token!==generation)return;if(ch.kind==='radio')radioUI('playing');clearTimeout(timeout);$('empty').hidden=true;$('noise').hidden=true;
  screen.classList.add('playing');setAccent(ch);say(ch.name);$('retry').hidden=true
 }
 function play(ch,index=0){
  clear();active=ch;render();const token=generation,url=ch.sources[index];
- if(!url){say('البث غير متاح');$('retry').hidden=false;return}
+ if(!url){say('البث غير متاح');$('retry').hidden=false;if(ch.kind==='radio'){$('radioStage').hidden=false;$('empty').hidden=true;setAccent(ch);radioUI('error')}return}
  $('stop').hidden=false;say(ch.name);setAccent(ch);
  let failed=false;
  const fail=()=>{if(token!==generation||failed)return;failed=true;play(ch,index+1)};
  const u=new URL(url);
  if(ch.kind==='radio'){
   const stage=$('radioStage');stage.hidden=false;$('empty').hidden=true;$('noise').hidden=true;
-  $('radioLogo').src=ch.logo;$('radioLogo').alt=ch.name;$('radioName').textContent=ch.name;screen.classList.add('playing');
+  const frequency=ch.name.match(/^(.*?)\s+-\s+([0-9.]+\s*FM)$/i);
+  const logo=$('radioLogo');logo.onerror=()=>{logo.onerror=null;logo.src=fallbackLogo(ch.name)};logo.src=ch.logo||fallbackLogo(ch.name);logo.alt=ch.name;
+  $('radioName').textContent=frequency?frequency[1]:ch.name;$('radioFrequency').textContent=frequency?frequency[2]:(ch.group||'Radio');
+  radioUI('loading');
   audio.onplaying=()=>ready(ch,token);audio.onerror=fail;
-  const start=()=>audio.play().catch(()=>say(ch.name));
+  audio.onpause=()=>{if(token===generation)radioUI('paused')};
+  audio.onwaiting=()=>{if(token===generation&&!audio.paused)radioUI('loading')};
+  const start=()=>audio.play().catch(()=>{if(token===generation){clearTimeout(timeout);radioUI('paused');say(ch.name)}});
   timeout=setTimeout(fail,20000);
   if(/\.m3u8(?:[?#]|$)/i.test(url)&&window.Hls&&Hls.isSupported()){hls=new Hls({enableWorker:true,maxBufferLength:20});hls.on(Hls.Events.MANIFEST_PARSED,start);hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal)fail()});hls.loadSource(url);hls.attachMedia(audio)}
   else{audio.src=url;start()}
@@ -111,11 +123,11 @@ function play(ch,index=0){
 function list(){return mode==='tnt'?builtin:mode==='radio'?radios:custom}
 function fallbackLogo(name){return logoSvg((name||'TV').slice(0,5),'#30343d','#fff','#8bb8ff')}
 function render(){
- const root=$('channels');root.replaceChildren();
+ const root=$('channels'),scroll=root.scrollLeft;root.replaceChildren();
  const query=$('search').value.trim().toLocaleLowerCase();
  for(const ch of list().filter(item=>!query||item.name.toLocaleLowerCase().includes(query)||String(item.group||'').toLocaleLowerCase().includes(query))){
   const wrap=document.createElement('div');wrap.className='channel-wrap'+(mode==='iptv'?' removable':'');
-  const row=document.createElement('button');row.className='channel'+(active===ch?' selected':'');row.type='button';row.setAttribute('aria-label',ch.name);
+  const row=document.createElement('button');row.className='channel'+(active===ch?' selected':'');row.type='button';row.title=ch.name;row.setAttribute('aria-label',ch.name);row.setAttribute('aria-pressed',String(active===ch));
   const logo=document.createElement('img');logo.className='logo';logo.src=ch.logo||fallbackLogo(ch.name);logo.alt='';logo.loading='lazy';logo.onerror=()=>{logo.onerror=null;logo.src=fallbackLogo(ch.name)};
   const copy=document.createElement('span');copy.className='channel-copy';
   const name=document.createElement('span');name.className='name';
@@ -130,13 +142,19 @@ function render(){
   }
   root.append(wrap)
  }
+ root.scrollLeft=scroll;
 }
 function setMode(value){
  if(value===mode)return;clear();active=null;mode=value;
  for(const id of ['tnt','radio','iptv']){$(id).classList.toggle('active',id===value);$(id).setAttribute('aria-pressed',String(id===value))}
- $('editor').hidden=value!=='iptv';$('search').value='';say('');render()
+ $('editor').hidden=value!=='iptv';$('search').value='';$('emptyTitle').textContent=value==='radio'?'الراديو المباشر':'البث المباشر';$('emptyHint').textContent=value==='radio'?'اختر محطة من الشريط أسفل الشاشة':'اختر قناة من الشريط أسفل الشاشة';say('');render();$('channels').scrollLeft=0
 }
-$('search').addEventListener('input',render);
+$('search').addEventListener('input',()=>{render();$('channels').scrollLeft=0});
+$('channels').addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&$('channels').scrollWidth>$('channels').clientWidth){e.preventDefault();$('channels').scrollLeft-=e.deltaY}},{passive:false});
+$('radioPlay').onclick=()=>{if(!active||active.kind!=='radio')return;if($('radioState').textContent==='البث غير متاح'){play(active);return}if(audio.paused){audio.play().catch(()=>{radioUI('error');$('retry').hidden=false})}else{clearTimeout(timeout);audio.pause();radioUI('paused')}};
+$('radioVolume').addEventListener('input',()=>{audio.volume=Number($('radioVolume').value)});
+audio.addEventListener('volumechange',()=>{$('radioVolume').value=audio.volume});
+
 $('tnt').onclick=()=>setMode('tnt');$('radio').onclick=()=>setMode('radio');$('iptv').onclick=()=>setMode('iptv');
 $('stop').onclick=()=>{clear();active=null;say('');render()};$('retry').onclick=()=>{if(active)play(active)};
 const hostCommand=command=>window.chrome?.webview?.postMessage(command);
@@ -159,4 +177,4 @@ $('tabs').addEventListener('wheel',e=>{e.preventDefault();const now=Date.now();i
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.fullscreenElement)document.exitFullscreen();else window.chrome?.webview?.postMessage('close')}});
 const canvas=$('noise'),ctx=canvas.getContext('2d');
 function noise(){if(document.hidden||$('noise').hidden)return;const img=ctx.createImageData(canvas.width,canvas.height);for(let i=0;i<img.data.length;i+=4){const n=24+Math.random()*72;img.data[i]=n;img.data[i+1]=n+2;img.data[i+2]=n+6;img.data[i+3]=255}ctx.putImageData(img,0,0)}
-noise();setInterval(noise,220);render();
+render();
