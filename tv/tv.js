@@ -7,21 +7,21 @@ const logoSvg=(text,bg,fg='#fff',accent='#fff')=>'data:image/svg+xml;charset=utf
 const logoPath=(kind,id)=>'logos/'+kind+'/'+id+'.png';
 const builtin=[
  {id:'aoula',name:'Al Aoula',logo:logoPath('tv','aoula'),rgb:'242,138,34',sources:[snrt('73_aloula_w1dqfwm'),'https://streaming.snrtlive.ma/live/slaalaoula/slaalaoula.m3u8','https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/al_aoula_inter/hls_snrt/index.m3u8']},
- {id:'2m',name:'2M Maroc',logo:logoPath('tv','2m'),rgb:'194,72,133',sources:['https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/2m_maroc/hls_snrt/index.m3u8','https://live.2m.ma/2m/live.m3u8']},
+ {id:'2m',name:'2M Maroc',logo:logoPath('tv','2m'),rgb:'194,72,133',sources:["https://viamotionhsi.netplus.ch/live/eds/2mmaroc/browser-HLS8/2mmaroc.m3u8"]},
  {id:'arryadia',name:'Arryadia',logo:logoPath('tv','arryadia'),rgb:'22,155,98',sources:[snrt('73_arryadia_k2tgcj0'),'https://streaming.snrtlive.ma/live/slaarryadia/slaarryadia.m3u8','https://cdn-globecast.akamaized.net/live/eds/arriadia/hls_snrt/index.m3u8']},
  {id:'athaqafia',name:'Athaqafia',logo:logoPath('tv','athaqafia'),logoBackup:'https://i.imgur.com/mrwFI2L.png',rgb:'117,82,168',sources:[snrt('73_arrabia_hthcj4p'),'https://cdn-globecast.akamaized.net/live/eds/arrabiaa/hls_snrt/index.m3u8']},
  {id:'maghribia',name:'Al Maghribia',logo:logoPath('tv','maghribia'),logoBackup:'https://i.imgur.com/7GaahYh.png',rgb:'7,140,136',sources:[snrt('73_almaghribia_83tz85q'),'https://cdn-globecast.akamaized.net/live/eds/al_maghribia_snrt/hls_snrt/index.m3u8']},
- {id:'assadissa',name:'Assadissa',logo:logoPath('tv','assadissa'),logoBackup:'https://i.imgur.com/un6qTGO.png',rgb:'50,160,90',sources:['https://streaming.snrtlive.ma/live/slaassadissa/slaassadissa.m3u8','https://cdn-globecast.akamaized.net/live/eds/assadissa/hls_snrt/index.m3u8',snrt('73_assadissa_7b7u5n1')]},
- {id:'aflam',name:'Aflam TV (7)',logo:logoPath('tv','aflam'),logoBackup:'https://stream.moroccohelp.com/logos/tv/aflam-tv.png',rgb:'221,56,61',sources:['https://live20.bozztv.com/gin-36bay4/ga-aflamtv7/index.m3u8']},
+ {id:'assadissa',name:'Assadissa',logo:logoPath('tv','assadissa'),logoBackup:'https://i.imgur.com/un6qTGO.png',rgb:'50,160,90',sources:["https://snrt.player.easybroadcast.io/events/73_assadissa_7b7u5n1","https://cdn.live.easybroadcast.io/ts_corp/73_assadissa_7b7u5n1/playlist_dvr.m3u8"]},
+ {id:'aflam',name:'Aflam TV (7)',logo:logoPath('tv','aflam'),logoBackup:'https://stream.moroccohelp.com/logos/tv/aflam-tv.png',rgb:'221,56,61',sources:[]},
  {id:'tamazight',name:'Tamazight',logo:logoPath('tv','tamazight'),logoBackup:'https://i.imgur.com/fm6S7we.png',rgb:'184,148,66',sources:[snrt('73_tamazight_tccybxt'),'https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/tamazight_tv8_snrt/hls_snrt/index.m3u8']},
  {id:'laayoune',name:'Laayoune',logo:logoPath('tv','laayoune'),logoBackup:'https://i.ibb.co/GQmw3nx/laayoune.png',rgb:'217,108,37',sources:[snrt('73_laayoune_pgagr52'),'https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/al_aoula_laayoune/hls_snrt/index.m3u8']},
- {id:'medi1',name:'Medi 1 TV Maghreb',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:['https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-maghreb_jnbspmg/playlist.m3u8','https://streaming1.medi1tv.com/live/smil:medi1tv.smil/playlist.m3u8']},
- {id:'2mmonde',name:'2M Monde',logo:logoPath('tv','2mmonde'),logoBackup:'https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/2mmonde.png',rgb:'194,72,133',sources:['https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8','https://d2qh3gh0k5vp3v.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/37024f97-ae88-4dce-bae0-bea94f90db4e/1.m3u8']},
- {id:'medi1arabic',name:'Medi 1 TV Arabic',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:['https://streaming1.medi1tv.com/live/smil:medi1ar.smil/playlist.m3u8']},
- {id:'medi1afrique',name:'Medi 1 TV Afrique',logo:logoPath('tv','medi1afrique'),logoBackup:'https://i.imgur.com/gHwCFb0.png',rgb:'215,25,49',sources:['https://streaming1.medi1tv.com/live/smil:medi1fr.smil/playlist.m3u8']},
- {id:'chadatv',name:'Chada TV',logo:logoPath('tv','chadatv'),logoBackup:'https://i.imgur.com/inJyJBN.png',rgb:'192,45,60',sources:['https://chadatv.vedge.infomaniak.com/livecast/ik:chadatv/manifest.m3u8']},
- {id:'m24',name:'M24 TV',logo:logoPath('tv','m24'),logoBackup:'https://i.imgur.com/7uv5Feu.png',rgb:'76,131,190',sources:['https://63df3191463ce.streamlock.net/live/ngrp:Live2.stream_all/index.m3u8','https://www.maptvnews.ma/live/smil:OutStream1.smil/playlist.m3u8']},
- {id:'telemaroc',name:'Tele Maroc',logo:logoPath('tv','telemaroc'),logoBackup:'https://upload.wikimedia.org/wikipedia/commons/8/8f/Logotelemaroc.jpeg',rgb:'181,54,72',sources:['https://api.new.livestream.com/accounts/27130247/events/9197096/live.m3u8']}
+ {id:'medi1',name:'Medi 1 TV Maghreb',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:["https://medi1tv.player.easybroadcast.io/events/83_medi1tv-maghreb_jnbspmg","https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-maghreb_jnbspmg/playlist.m3u8"]},
+ {id:'2mmonde',name:'2M Monde',logo:logoPath('tv','2mmonde'),logoBackup:'https://raw.githubusercontent.com/t4r1k2-dev/minitv-logos/main/2mmonde.png',rgb:'194,72,133',sources:["https://d2qh3gh0k5vp3v.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/2M_ES.m3u8","https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8"]},
+ {id:'medi1arabic',name:'Medi 1 TV Arabic',logo:logoPath('tv','medi1tv'),rgb:'215,25,49',sources:["https://medi1tv.player.easybroadcast.io/events/83_medi1tv-arabic_g90v4ec","https://streaming1.medi1tv.com/live/smil:medi1ar.smil/playlist.m3u8"]},
+ {id:'medi1afrique',name:'Medi 1 TV Afrique',logo:logoPath('tv','medi1afrique'),logoBackup:'https://i.imgur.com/gHwCFb0.png',rgb:'215,25,49',sources:["https://medi1tv.player.easybroadcast.io/events/83_medi1tv-afrique_tm7tu45","https://streaming1.medi1tv.com/live/smil:medi1fr.smil/playlist.m3u8"]},
+ {id:'chadatv',name:'Chada TV',logo:logoPath('tv','chadatv'),logoBackup:'https://i.imgur.com/inJyJBN.png',rgb:'192,45,60',sources:["https://chadatv.vedge.infomaniak.com/livecast/chadatv/playlist.m3u8"]},
+ {id:'m24',name:'M24 TV',logo:logoPath('tv','m24'),logoBackup:'https://i.imgur.com/7uv5Feu.png',rgb:'76,131,190',sources:["https://www.m24tv.ma/live/smil:OutStream1.smil/chunklist.m3u8","https://63df3191463ce.streamlock.net/live/ngrp:Live2.stream_all/index.m3u8"]},
+ {id:'telemaroc',name:'Tele Maroc',logo:logoPath('tv','telemaroc'),logoBackup:'https://upload.wikimedia.org/wikipedia/commons/8/8f/Logotelemaroc.jpeg',rgb:'181,54,72',sources:[]}
 ];
 const radios=[
  {id:"mohammed-6",kind:'radio',name:"Radio Mohammed VI du Saint Coran - 98.6 FM",group:"Holy Quran",logo:logoPath('radio',"mohammed-6"),rgb:"176,131,38",sources:["https://cdn.live.easybroadcast.io/live/radio_med_VI/chunks.m3u8"]},
@@ -70,7 +70,7 @@ const radios=[
 const key='pebbly-tv-channels-v1';
 const {validURL,normalize,parseM3U}=TVData;
 let custom=[];try{custom=normalize(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}
-let mode='tnt',active=null,hls=null,timeout=null,generation=0;
+let mode='tnt',active=null,hls=null,timeout=null,generation=0,sourceIndex=0;
 const video=$('video'),audio=$('audio'),iframe=$('frame'),screen=$('screen');
 function radioUI(state){
  const playing=state==='playing';
@@ -87,7 +87,7 @@ function setAccent(ch){
  else document.documentElement.style.removeProperty('--ambient')
 }
 function clear(){
- generation++;clearTimeout(timeout);audio.onplaying=null;audio.onerror=null;audio.onpause=null;audio.onwaiting=null;video.onplaying=null;video.onerror=null;radioUI('idle');if(hls){hls.destroy();hls=null}
+ generation++;clearTimeout(timeout);iframe.onload=null;iframe.onerror=null;$('retry').textContent='Retry';$('emptyTitle').textContent=mode==='radio'?'Live radio':'Live TV';$('emptyHint').textContent=mode==='radio'?'Choose a station below':'Choose a channel below';audio.onplaying=null;audio.onerror=null;audio.onpause=null;audio.onwaiting=null;video.onplaying=null;video.onerror=null;radioUI('idle');if(hls){hls.destroy();hls=null}
  for(const media of [video,audio]){media.pause();media.removeAttribute('src');media.load()}
  video.style.display='none';iframe.removeAttribute('src');iframe.style.display='none';$('radioStage').hidden=true;
  $('empty').hidden=false;$('noise').hidden=false;$('retry').hidden=true;$('stop').hidden=true;screen.classList.remove('playing');setAccent(null)
@@ -97,8 +97,8 @@ function ready(ch,token){
  screen.classList.add('playing');setAccent(ch);say(ch.name);$('retry').hidden=true
 }
 function play(ch,index=0){
- clear();active=ch;render();const token=generation,url=ch.sources[index];
- if(!url){say(ch.name+' — Stream unavailable');$('retry').hidden=false;$('stop').hidden=false;if(ch.kind==='radio'){$('radioStage').hidden=false;$('empty').hidden=true;setAccent(ch);radioUI('error')}return}
+ clear();active=ch;sourceIndex=index;render();const token=generation,url=ch.sources[index];
+ if(!url){const message=ch.id==='aflam'?'TNT only — no verified online stream':ch.id==='telemaroc'?'No verified online stream':'Stream unavailable — all sources failed';say(ch.name+' — '+message);$('emptyTitle').textContent=ch.name;$('emptyHint').textContent=message;$('retry').hidden=!ch.sources.length;$('stop').hidden=false;if(ch.kind==='radio'){$('radioStage').hidden=false;$('empty').hidden=true;setAccent(ch);radioUI('error')}return}
  $('stop').hidden=false;say(ch.name+(index?' — Trying alternate stream '+(index+1):''));setAccent(ch);
  let failed=false;
  const fail=()=>{if(token!==generation||failed)return;failed=true;play(ch,index+1)};
@@ -118,11 +118,18 @@ function play(ch,index=0){
   else{audio.src=url;start()}
   return
  }
- if(u.hostname==='snrt.player.easybroadcast.io'&&u.pathname.startsWith('/events/')){
-  iframe.style.display='block';iframe.src=url;ready(ch,token);return
+ if(['snrt.player.easybroadcast.io','medi1tv.player.easybroadcast.io'].includes(u.hostname)&&u.pathname.startsWith('/events/')){
+  $('empty').hidden=true;iframe.style.display='block';
+  say(ch.name+' — Official player');
+  iframe.onerror=fail;
+  iframe.onload=()=>{if(token===generation){clearTimeout(timeout);screen.classList.add('playing');say(ch.name+' — Official player (press play if needed)')}};
+  timeout=setTimeout(fail,18000);
+  iframe.src=url;
+  if(ch.sources.length>1){$('retry').textContent='Next source';$('retry').hidden=false}
+  return
  }
  video.style.display='block';video.onplaying=()=>ready(ch,token);video.onerror=fail;
- const start=()=>video.play().catch(()=>say(ch.name));
+ const start=()=>video.play().catch(err=>{if(token!==generation)return;if(err.name==='NotAllowedError'){say(ch.name+' — Press play');return}fail()});
  timeout=setTimeout(fail,20000);
  if(/\.m3u8(?:[?#]|$)/i.test(url)&&window.Hls&&Hls.isSupported()){hls=new Hls({enableWorker:true,maxBufferLength:20});hls.on(Hls.Events.MANIFEST_PARSED,start);hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal)fail()});hls.loadSource(url);hls.attachMedia(video)}
  else{video.src=url;start()}
@@ -163,7 +170,7 @@ $('radioVolume').addEventListener('input',()=>{audio.volume=Number($('radioVolum
 audio.addEventListener('volumechange',()=>{$('radioVolume').value=audio.volume});
 
 $('tnt').onclick=()=>setMode('tnt');$('radio').onclick=()=>setMode('radio');$('iptv').onclick=()=>setMode('iptv');
-$('stop').onclick=()=>{clear();active=null;say('');render()};$('retry').onclick=()=>{if(active)play(active)};
+$('stop').onclick=()=>{clear();active=null;say('');render()};$('retry').onclick=()=>{if(active)play(active,$('retry').textContent==='Next source'?(sourceIndex+1)%active.sources.length:0)};
 const hostCommand=command=>window.chrome?.webview?.postMessage(command);
 $('closeWindow').onclick=()=>hostCommand('close');
 $('sizeWindow').onclick=()=>hostCommand('toggle-size');
