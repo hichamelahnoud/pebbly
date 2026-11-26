@@ -65,7 +65,7 @@ internal sealed class TvWindow : Form
         Text = "Pebbly Live"; FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false; TopMost = true; StartPosition = FormStartPosition.Manual;
         AutoScaleMode = AutoScaleMode.None; BackColor = Color.FromArgb(10, 11, 15);
-        Padding = Padding.Empty;
+        Padding = System.Windows.Forms.Padding.Empty;
         targetWidth = width; targetX = x;
         startWidth = Math.Min(width, (int)(220 * scale));
         startX = Math.Max(screen.Left, Math.Min(center - startWidth / 2, screen.Right - startWidth));
