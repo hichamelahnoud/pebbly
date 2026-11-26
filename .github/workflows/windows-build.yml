@@ -60,7 +60,7 @@ jobs:
           Get-FileHash portable/*.exe -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 250 | Set-Content portable/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Pebbly-Top-Island-Glass-Live-v6-Windows-x64
+          name: Pebbly-Top-Island-Glass-Live-v7-Windows-x64
           path: portable/
           if-no-files-found: error
           retention-days: 30
